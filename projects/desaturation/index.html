@@ -6,43 +6,53 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
 		<style>
+
+            body::-webkit-scrollbar {
+				display: none;
+			}
+
 			body {
-				margin: 0px;
 				overflow-y: scroll;
                 background-color: rgb(255, 128, 0);
 			}
 
-			body::-webkit-scrollbar {
-				display: none;
-			}
+            canvas {
+                text-align: center;
+                margin: auto;
+                border:1px solid #000000;
+            }
 
             .centerColumn {
-                text-align:center;
-                margin: auto;
+                width: 280px;
+                text-align: center;
+                display: grid;
+                grid-template-rows: 75px 75px 75px 75px;
+                grid-gap: 10px;
+                border: 1px solid black;
+            }
+
+            .labels {
+                width: 33%;
+                height: 75px;
+                border: 1px solid green;
+            }
+
+            .sliders {
+                width: 66%;
+                height: 75px;
+                border: 1px solid green;
+            }
+
+            .desaturateContainer {
                 width: 100%;
-            }
-
-            .canvas {
-                margin: 10px auto 10px;
-                width: 220px;
-                height; 420px;
-            }
-
-            .slider {
-                float: top;
-            }
-
-            .sliderContainer {
-                margin: auto;
                 text-align: center;
-                content: "";
-                display: table;
-                clear: both;
+                border: 1px solid blue;
             }
 
-            .buttonContainer {
-                margin: auto;
+            .resolutionContainer {
+                width: 100%;
                 text-align: center;
+                border:1px solid black;
             }
 		</style>
 
@@ -50,24 +60,42 @@
 	</head>
 	<body id="theBody">
 		<div class="centerColumn">
-			<canvas id="mainCanvas" width="220" height="420" style="border:1px solid #000000;"></canvas>
+            <div>
+                <canvas id="mainCanvas" width="220" height="420"></canvas>
+            </div>
 
-			<div class="sliderContainer">
-                <div class="slider">
-                    <p>Red</p>
-				    <input type="range" id="redInput" min="0" max="255" value="255">
+            <div class="centerColumn">
+                <div class="labels">
+                    <div>
+                        <label for="redInput">Red:</label>
+                    </div>
+                    <div>
+                        <label for="greenInput">Green:</label>
+                    </div>
+                    <div>
+                        <label for="blueInput">Blue:</label>
+                    </div>
                 </div>
-                <div class="slider">
-                    <p>Green</p>
-				    <input type="range" id="greenInput" min="0" max="255" value="128">
+
+                <div class="sliders">
+                    <div>
+			    	    <input type="range" id="redInput" min="0" max="255" value="255">
+                    </div>
+                    <div>
+				        <input type="range" id="greenInput" min="0" max="255" value="128">
+                    </div>
+                    <div>
+				        <input type="range" id="blueInput" min="0" max="255" value="0">
+                    </div>
                 </div>
-                <div class="slider">
-                    <p>Blue</p>
-				    <input type="range" id="blueInput" min="0" max="255" value="0">
+            
+                <div class="desaturateContainer">
+                    <button onclick="desaturate()" type="button" id="desaturateButton">Desaturate</button>
                 </div>
-			</div>
-            <div class="bottonContainer">
-                <button onclick="desaturate()" type="button" id="desaturateButton">Desaturate</button>
+
+                <div class="resolutionContainer">
+                    <p>Resolution</p>
+                </div>
             </div>
 		</div>
 		
