@@ -19,40 +19,37 @@
             canvas {
                 text-align: center;
                 margin: auto;
-                border:1px solid #000000;
-            }
-
-            .centerColumn {
-                width: 280px;
-                text-align: center;
-                display: grid;
-                grid-template-rows: 75px 75px 75px 75px;
-                grid-gap: 10px;
                 border: 1px solid black;
             }
 
+            .centerColumn {
+                margin: auto;
+                width: 280px;
+                text-align: center;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-rows: 75px 30px;
+                grid-template-columns: repeat(3, [column-start] 33%);
+            }
+
             .labels {
-                width: 33%;
-                height: 75px;
-                border: 1px solid green;
+                grid-column: 1 / 2;
+                grid-row: 1 / 2;
+                text-align: right;
             }
 
             .sliders {
-                width: 66%;
-                height: 75px;
-                border: 1px solid green;
+                grid-column: 2 / span 2;
+                grid-row: 1 / 2;
+                text-align: left;
             }
 
             .desaturateContainer {
-                width: 100%;
+                grid-row: 2 / span 1;
+                grid-column: 1 / span 3;
                 text-align: center;
-                border: 1px solid blue;
-            }
-
-            .resolutionContainer {
-                width: 100%;
-                text-align: center;
-                border:1px solid black;
             }
 		</style>
 
@@ -64,7 +61,7 @@
                 <canvas id="mainCanvas" width="220" height="420"></canvas>
             </div>
 
-            <div class="centerColumn">
+            <div class="controls">
                 <div class="labels">
                     <div>
                         <label for="redInput">Red:</label>
@@ -91,10 +88,6 @@
             
                 <div class="desaturateContainer">
                     <button onclick="desaturate()" type="button" id="desaturateButton">Desaturate</button>
-                </div>
-
-                <div class="resolutionContainer">
-                    <p>Resolution</p>
                 </div>
             </div>
 		</div>
