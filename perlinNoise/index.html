@@ -24,18 +24,19 @@
                 margin: auto;
                 text-align: center;
                 display: grid;
-                grid-template-rows: [row1-start] 90% [row1-end row2-start] 10% [row2-end]
+                grid-template-rows: [row1-start] 90% [row1-end row2-start] 10% [row2-end];
+                border: 1px solid black;
             }
 
             .canvasContainer {
                 width: 100%;
-                grid-column: row1-start / row1-end;
+                grid-row: row1-start / row1-end;
                 border: 1px solid blue;
             }
 
             .timelineContainer {
                 width: 100%;
-                grid-column: row2-start / row2-end;
+                grid-row: row2-start / row2-end;
                 border: 1px solid red;
             }
         </style>
