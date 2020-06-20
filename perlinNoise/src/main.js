@@ -39,7 +39,7 @@ window.addEventListener('resize', draw);
 timelineInput.addEventListener('input', redrawTime);
 
 //----------Perlin Noise Object-----------
-// perlinNoise([dim1, dim2, dim3, ..., dimN, gridMeter, numOctaves, octaveScale])
+// perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels), gridMeter, numOctaves, octaveScale])
 var noise = new perlinNoise([c.width, c.height, 100, 30, 4, 1/2]);
 
 //----------Do The Things-----------
