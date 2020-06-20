@@ -20,14 +20,19 @@
                 border: 1px solid black;
             }
 
+            input {
+                width: 50%;
+            }
+
             .content {
+                position: fixed;
+                left: 0;
+                top: 0;
                 text-align: center;
                 width: 100vw;
                 height: 100vh;
                 display: grid;
                 grid-template-rows: [row1-start] 90% [row1-end row2-start] 10% [row2-end];
-                background: grey;
-                border: 1px solid blue;
             }
 
             .canvasContainer {
@@ -37,7 +42,6 @@
 
             .timelineContainer {
                 grid-row: row2-start / row2-end;
-                border: 1px solid red;
             }
         </style>
     </head>
