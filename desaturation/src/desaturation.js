@@ -39,13 +39,10 @@ class DesaturationScale {
                     }else {
                         color.rgb[rgb] = this.lerp(originalLerp, whiteColor.rgb[rgb], heightIndex/Math.floor(this.height/2)-1);
                     }
-
-
                 }
 
                 return color;
             })
         });
     }
-
 }
