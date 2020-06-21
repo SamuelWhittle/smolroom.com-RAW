@@ -5,7 +5,7 @@ function adjustCanvasSize() {
     c.height = c.offsetHeight;
 }
 
-// Where the drawing happens
+// draw the current point in time on the canvas
 function draw() {
     // Make sure the canvas is the right size in pixels to match the parent div in the html
     adjustCanvasSize();
@@ -20,6 +20,17 @@ function draw() {
 // Redraws canvas based on selected time
 function redrawTime() {
     //idk change somehow dependant on timeline? I'll figure it out later.
+    draw();
+}
+
+// Where the things happen
+function main() {
+    // Make sure canvas is the right size
+    adjustCanvasSize();
+
+    // perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels), gridStep, numOctaves, octaveScale])
+    var noise = new perlinNoise([c.width, c.height, 100, 30, 4, 1/2]);
+
     draw();
 }
 
@@ -38,9 +49,5 @@ window.addEventListener('resize', draw);
 // Timeline move
 timelineInput.addEventListener('input', redrawTime);
 
-//----------Perlin Noise Object-----------
-// perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels), gridMeter, numOctaves, octaveScale])
-var noise = new perlinNoise([c.width, c.height, 100, 30, 4, 1/2]);
-
 //----------Do The Things-----------
-draw();
+main();
