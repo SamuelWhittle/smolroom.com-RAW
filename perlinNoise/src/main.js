@@ -1,4 +1,23 @@
 //-----------Functions-----------
+var noise;
+
+var scale = 20;
+
+function smoothInterp(a, b, c){
+    c = smoothstep2(c);
+    return a*(1-c)+b*c;
+}
+
+//Smoothstep function that assumed a safe value is passed (saves small amount of processing power)
+function smoothstep2(x){
+return x*x*(3-2*x);
+}
+
+//Transform a number from one range to another range
+function map(num, oldMin, oldMax, min, max){
+    return (num-oldMin)/(oldMax-oldMin)*(max-min)+min;
+}
+
 // Sets canvas size to be relative to the chrome window
 function adjustCanvasSize() {
     c.width = c.offsetWidth;
@@ -13,24 +32,26 @@ function draw() {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, c.width, c.height);
 
-    ctx.fillStyle = "#FF0000";
-    ctx.fillRect(timelineInput.value/100*(c.width-50), 10, 50, 50);
-}
-
-// Redraws canvas based on selected time
-function redrawTime() {
-    //idk change somehow dependant on timeline? I'll figure it out later.
-    draw();
+     for(var x = 0; x < c.width; x+=scale) {
+         for(var y = 0; y < c.height; y+=scale) {
+            color = noise.getNoisePixel([x,y, timelineInput.value]);
+            r = g = b = map(color, -1, 1, 0, 255);
+            ctx.fillStyle = `rgb( ${r}, ${g}, ${b})`;
+            ctx.fillRect(x, y, scale, scale);
+            //console.log(x, y);
+         }
+     }
 }
 
 // Where the things happen
 function main() {
     // Make sure canvas is the right size
     adjustCanvasSize();
-
+    
     // perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels), gridStep, numOctaves, octaveScale])
-    var noise = new perlinNoise([c.width, c.height, 100, 30, 4, 1/2]);
-
+    noise = new perlinNoise([c.width, c.height, timelineInput.max], 200, 4, 1/3, smoothInterp);
+    console.log("Ready...");
+    
     draw();
 }
 
@@ -47,7 +68,7 @@ var timelineInput = document.getElementById("timeline");
 window.addEventListener('resize', draw);
 
 // Timeline move
-timelineInput.addEventListener('input', redrawTime);
+timelineInput.addEventListener('input', draw);
 
 //----------Do The Things-----------
 main();
