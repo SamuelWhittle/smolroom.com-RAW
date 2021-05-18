@@ -1,7 +1,7 @@
 //-----------Functions-----------
 var noise;
 
-var scale = 20;
+var scale = 25;
 
 function smoothInterp(a, b, c){
     c = smoothstep2(c);
@@ -49,7 +49,7 @@ function main() {
     adjustCanvasSize();
     
     // perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels), gridStep, numOctaves, octaveScale])
-    noise = new perlinNoise([c.width, c.height, timelineInput.max], 200, 4, 1/3, smoothInterp);
+    noise = new perlinNoise([c.width, c.height, timelineInput.max + 1], 200, 4, 1/3, smoothInterp);
     console.log("Ready...");
     
     draw();
@@ -60,8 +60,14 @@ function main() {
 var c = document.getElementById("mainCanvas");
 var ctx = c.getContext("2d");
 
-// Get Input Slider
+// Get Inputs
 var timelineInput = document.getElementById("timeline");
+
+var ageInput = document.getElementById("age");
+var largestOctaveInput = document.getElementById("largestOctave");
+var resolution = document.getElementById("resolution");
+
+var redrawInput = document.getElementById("redraw");
 
 //----------Event Listeners-----------
 // Window Resize
@@ -69,6 +75,20 @@ window.addEventListener('resize', draw);
 
 // Timeline move
 timelineInput.addEventListener('input', draw);
+
+// Age change
+redrawInput.addEventListener('click', () => {
+    timelineInput.max = Number(ageInput.value);
+    scale = Number(resolution.value);
+    noise = new perlinNoise([c.width, c.height, timelineInput.max + 1], Number(largestOctaveInput.value), 4, 1/3, smoothInterp);
+    draw();
+});
+
+// Change Resolution
+resolution.addEventListener('input', () => {
+    scale = Number(resolution.value);
+    draw();
+});
 
 //----------Do The Things-----------
 main();

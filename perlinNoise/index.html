@@ -32,16 +32,31 @@
                 width: 100vw;
                 height: 100vh;
                 display: grid;
-                grid-template-rows: [row1-start] 90% [row1-end row2-start] 10% [row2-end];
+                grid-template-rows: [r1-s] 80% [r1-e r2-s] 5% [r2-e r3-s] 10% [r3-e];
+                grid-template-columns: [c1-s] 25% [c1-e c2-s] 25% [c2-e c3-s] 25% [c3-e c4-s] 25% [c4-e];
             }
 
             .canvasContainer {
                 position: relative;
-                grid-row: row1-start / row1-end;
+                grid-row: r1-s / r1-e;
+                grid-column: c1-s / c4-e;
             }
 
             .timelineContainer {
-                grid-row: row2-start / row2-end;
+                grid-row: r2-s / r2-e;
+                grid-column: c1-s / c4-e;
+            }
+
+            .labelContainer {
+                grid-row: r3-s / r3-e;
+                grid-column: c2-s / c2-e;
+                text-align: right;
+            }
+
+            .inputContainer {
+                grid-row: r3-s / r3-e;
+                grid-column: c3-s / c3-e;
+                text-align: left;
             }
         </style>
     </head>
@@ -50,9 +65,42 @@
             <div class="canvasContainer">
                 <canvas id="mainCanvas"></canvas>
             </div>
+
             <div class="timelineContainer">
                 <label for="timeline">Timeline:</label>
-                <input type="range" id="timeline" min="0" max="100" value="0">
+                <input type="range" id="timeline" min="0" max="99" value="0" step="1"/>
+            </div>
+
+            <div class="labelContainer">
+                <div>
+                    <label for="">Age:</label>
+                </div>
+
+                <div>
+                    <label for="largestOctave">Largest Octave:</label>
+                </div>
+
+                <div>
+                    <label for="resolution">Resolution:</label>
+                </div>
+            </div>
+
+            <div class="inputContainer">
+                <div>
+                    <input type="text" id="age" value="100"/>
+                </div>
+                
+                <div>
+                    <input type="text" id="largestOctave" value="200"/>
+                </div>
+
+                <div>
+                    <input type="range" id="resolution" min="1" max="25" value="25"/>
+                </div>
+
+                <div>
+                    <button id="redraw">New Noise!</button>
+                </div>
             </div>
         </div>
 
