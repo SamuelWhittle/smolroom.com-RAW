@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <title>LED Matrix Control</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <style type="text/css">
+            body {
+                overflow-y: scroll;
+            }
+
+            body::-webkit-scrollbar {
+                display: none;
+            }
+
+            canvas {
+                width: 100%;
+                height: 100%;
+                border: 1px solid black;
+            }
+
+            .content {
+                position: fixed;
+                left: 0;
+                top: 0;
+                text-align: center;
+                width: 100vw;
+                height: 100vh;
+                display: grid;
+                grid-template-rows: [r1-s] 80% [r1-e r2-s] 5% [r2-e r3-s] 10% [r3-e];
+                grid-template-columns: [c1-s] 25% [c1-e c2-s] 25% [c2-e c3-s] 25% [c3-e c4-s] 25% [c4-e];
+            }
+
+            .canvasContainer {
+                position: relative;
+                grid-row: r1-s / r1-e;
+                grid-column: c1-s / c4-e;
+            }
+        </style>
+    </head>
+    <body id="body">
+        <div class="content">
+            <div class="canvasContainer">
+                <canvas id="mainCanvas"></canvas>
+            </div>
+            <div class="state">
+                <span class="users">?</span> online
+            </div>
+        </div>
+        <script src="src/main.js"></script>
+    </body>
+</html
