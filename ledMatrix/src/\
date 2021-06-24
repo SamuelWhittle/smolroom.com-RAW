@@ -19,33 +19,18 @@ var isDrawing = false;
 // Canvas Context for drawing
 var ctx = canvas.getContext("2d");
 
-/*onButton.onclick = function (event) {
-    websocket.send(JSON.stringify({action: 'allOn', color: [0,0,0,255]}));
-}*/
+onButton.onclick = function (event) {
+    websocket.send(JSON.stringify({action: 'allOn', color: [0,0,0,10]}));
+}
 
 // Send the command to turn off all the lights
 offButton.onclick = function (event) {
     websocket.send(JSON.stringify({action: 'allOff'}));
 }
 
-// canvas right click
-canvas.addEventListener('contextmenu', event => {
-    event.preventDefault();
-    var gridX = Math.floor(event.offsetX/squareSize);
-    var gridY = Math.floor(event.offsetY/squareSize);
-    
-    websocket.send(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [0, 0, 0, 0]}));
-});
-
-canvas.addEventListener('click', event => {
-    var gridX = Math.floor(event.offsetX/squareSize);
-    var gridY = Math.floor(event.offsetY/squareSize);
-    
-    websocket.send(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [currentColorObject.r, currentColorObject.g, currentColorObject.b, 0]}));
-});
 
 // Canvas even listeners
-/*canvas.addEventListener('mousedown', event => {
+canvas.addEventListener('mousedown', event => {
     isDrawing = true;
     canvasDrag(event);
 });
@@ -64,15 +49,20 @@ window.addEventListener('mouseup', event => {
 
 function canvasDrag(event) {
     var imageData = ctx.getImageData(event.offsetX, event.offsetY, 1, 1).data;
-    if(!(imageData[0] == currentColorObject.r && imageData[1] == currentColorObject.g && imageData[2] == currentColorObject.b)) {
-        var gridX = Math.floor(event.offsetX/squareSize);
-        var gridY = Math.floor(event.offsetY/squareSize);
-
-        if(gridX <= 29 && gridY <= 29) {
-            websocket.send(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [currentColorObject.r, currentColorObject.g, currentColorObject.b, 0]}));
-        }
+    console.log(imageData);
+    console.log(currentColorObject);
+    if(imageData[0] == currentColorObject.r && imageData[1] == currentColorObject.g && imageData[2] == currentColorObject.b) {
+        console.log("same color");
     }
-}*/
+}
+
+// When the canvas is clicked
+canvas.onclick = function (event) {
+    var gridX = Math.floor(event.clientX/squareSize);
+    var gridY = Math.floor(event.clientY/squareSize);
+
+    websocket.send(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [currentColorObject.r, currentColorObject.g, currentColorObject.b, 0]}));
+}
 
 // When the window is resized
 window.addEventListener('resize', draw);

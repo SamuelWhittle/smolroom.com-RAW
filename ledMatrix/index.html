@@ -28,13 +28,19 @@
                 width: 100vw;
                 height: 100vh;
                 display: grid;
-                grid-template-rows: [r1-s] 80% [r1-e r2-s] 5% [r2-e r3-s] 10% [r3-e];
+                grid-template-rows: [r1-s] 80% [r1-e r2-s] 20% [r2-e];
                 grid-template-columns: [c1-s] 25% [c1-e c2-s] 25% [c2-e c3-s] 25% [c3-e c4-s] 25% [c4-e];
             }
 
             .canvasContainer {
                 position: relative;
                 grid-row: r1-s / r1-e;
+                grid-column: c1-s / c4-e;
+            }
+
+            .controls {
+                position: relative;
+                grid-row: r2-s / r2-e;
                 grid-column: c1-s / c4-e;
             }
         </style>
@@ -44,8 +50,11 @@
             <div class="canvasContainer">
                 <canvas id="mainCanvas"></canvas>
             </div>
-            <div class="state">
+            <div class="controls">
                 <span class="users">?</span> online
+                <!--<button type="button" id="onButton">On</button>-->
+		        <button type="button" id="offButton">Off</button>
+                <input type="color" id="colorPicker" value="#FF8800" style="width:25%;">
             </div>
         </div>
         <script src="src/main.js"></script>
