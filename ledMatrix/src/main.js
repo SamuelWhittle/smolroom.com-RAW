@@ -6,7 +6,8 @@ var canvas = document.getElementById('mainCanvas'),
     colorPicker = document.getElementById('colorPicker'),
     websocket = new WebSocket("wss://smolroom.com:8001/");
 
-// Global Variables
+
+// ########## Global Variables ##########
 var picture;
 var squareSize;
 var currentColorObject = {
@@ -14,82 +15,15 @@ var currentColorObject = {
     g: 128,
     b: 0
 };
-var isDrawing = false;
+
+var mouseIsDown = false;
 
 // Canvas Context for drawing
 var ctx = canvas.getContext("2d");
 
-/*onButton.onclick = function (event) {
-    websocket.send(JSON.stringify({action: 'allOn', color: [0,0,0,255]}));
-}*/
 
-// Send the command to turn off all the lights
-offButton.onclick = function (event) {
-    websocket.send(JSON.stringify({action: 'allOff'}));
-}
 
-// canvas right click
-canvas.addEventListener('contextmenu', event => {
-    event.preventDefault();
-    var gridX = Math.floor(event.offsetX/squareSize);
-    var gridY = Math.floor(event.offsetY/squareSize);
-    
-    websocket.send(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [0, 0, 0, 0]}));
-});
-
-canvas.addEventListener('click', event => {
-    var gridX = Math.floor(event.offsetX/squareSize);
-    var gridY = Math.floor(event.offsetY/squareSize);
-    
-    websocket.send(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [currentColorObject.r, currentColorObject.g, currentColorObject.b, 0]}));
-});
-
-// Canvas even listeners
-/*canvas.addEventListener('mousedown', event => {
-    isDrawing = true;
-    canvasDrag(event);
-});
-
-canvas.addEventListener('mousemove', event => {
-    if (isDrawing === true) {
-        canvasDrag(event);
-    }
-});
-
-window.addEventListener('mouseup', event => {
-    if (isDrawing === true) {
-        isDrawing = false;
-    }
-});
-
-function canvasDrag(event) {
-    var imageData = ctx.getImageData(event.offsetX, event.offsetY, 1, 1).data;
-    if(!(imageData[0] == currentColorObject.r && imageData[1] == currentColorObject.g && imageData[2] == currentColorObject.b)) {
-        var gridX = Math.floor(event.offsetX/squareSize);
-        var gridY = Math.floor(event.offsetY/squareSize);
-
-        if(gridX <= 29 && gridY <= 29) {
-            websocket.send(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [currentColorObject.r, currentColorObject.g, currentColorObject.b, 0]}));
-        }
-    }
-}*/
-
-// When the window is resized
-window.addEventListener('resize', draw);
-
-// When the color picker is interacted with
-colorPicker.addEventListener("input", colorPickerNewColor, false);
-colorPicker.addEventListener("change", colorPickerDismiss, false);
-
-// Save the selected color
-function colorPickerNewColor(event) {
-    currentColorObject = hexToRgbObject(event.target.value);
-}
-
-// Unused, runs when the color picker is dismissed
-function colorPickerDismiss() {
-    console.log("colorPicker dismiss");
-}
+// ########## Helper Functions ##########
 
 // Converts {r : 0, g : 0, b : 0} to "rgb(0, 0, 0)"
 function rgbObjectToCssRgb(colorObject) {
@@ -110,16 +44,13 @@ function hexToRgbObject(hex) {
 const rgb = (r, g, b) => 
   `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
 
-// Adjust canvas size and calculate optimal square size
-function adjustCanvasSize() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    if(canvas.width >= canvas.height) {
-        squareSize = canvas.height/30;
-    } else {
-        squareSize = canvas.width/30;
-    }
+function sendToServer(payload) {
+    websocket.send(payload);
 }
+
+
+
+// ########## Core functions ##########
 
 // Ensure the canvas is the correct size and draws what the light matrix looks like
 function draw() {
@@ -136,6 +67,125 @@ function draw() {
         }
     }
 }
+
+
+
+// ########## Event Functions ##########
+
+// Window Events
+
+// Adjust canvas size and calculate optimal square size
+function adjustCanvasSize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    if(canvas.width >= canvas.height) {
+        squareSize = canvas.height/30;
+    } else {
+        squareSize = canvas.width/30;
+    }
+}
+
+// Canvas Events
+
+// get mouse location and change colors accordingly
+function canvasDrag(event) {
+    var imageData = ctx.getImageData(event.offsetX, event.offsetY, 1, 1).data;
+    // if the currently selected color is different than the current pixel color
+    if(!(imageData[0] == currentColorObject.r && imageData[1] == currentColorObject.g && imageData[2] == currentColorObject.b)) {
+        var gridX = Math.floor(event.offsetX/squareSize);
+        var gridY = Math.floor(event.offsetY/squareSize);
+        //console.log(gridX, gridY)
+
+        if(gridX <= 29 && gridY <= 29) {
+            if(event.buttons == 2) {
+                event.preventDefault();
+                sendToServer(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [0, 0, 0, 0]})); 
+            }else if(event.buttons == 1 || event.buttons == 0){
+                sendToServer(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [currentColorObject.r, currentColorObject.g, currentColorObject.b, 0]})); 
+            }
+        }
+    }
+}
+
+// Color Picker Events
+
+// Save the color from the picker as the global color object
+function colorPickerNewColor(event) {
+    currentColorObject = hexToRgbObject(event.target.value);
+}
+
+// Unused, runs when the color picker is dismissed
+function colorPickerDismiss() {
+    console.log("colorPicker dismiss");
+}
+
+
+
+// ########## Event Listeners ##########
+
+// Send the command to turn off all the lights
+offButton.onclick = function (event) {
+    websocket.send(JSON.stringify({action: 'allOff'}));
+}
+
+// canvas right click
+canvas.addEventListener('contextmenu', event => {
+    event.preventDefault();
+});
+
+// mouse down
+canvas.addEventListener('mousedown', event => {
+    mouseIsDown = true;
+    canvasDrag(event);
+});
+
+// mouse move
+canvas.addEventListener('mousemove', event => {
+    if (mouseIsDown === true) {
+        canvasDrag(event);
+    }
+});
+
+// mouse up
+window.addEventListener('mouseup', event => {
+    mouseIsDown = false;
+});
+
+// touch start
+canvas.addEventListener('touchstart', event => {
+    var touch = event.touches[0];
+    var mouseEvent = new MouseEvent('mousedown', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+
+    canvas.dispatchEvent(mouseEvent);
+}, false);
+
+// touch move
+canvas.addEventListener("touchmove", event => {
+  var touch = event.touches[0];
+  var mouseEvent = new MouseEvent("mousemove", {
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+  canvas.dispatchEvent(mouseEvent);
+}, false);
+
+// touch end
+window.addEventListener("touchend", event => {
+  var mouseEvent = new MouseEvent("mouseup", {});
+  window.dispatchEvent(mouseEvent);
+}, false);
+
+// When the window is resized
+window.addEventListener('resize', draw);
+
+// When the color picker is interacted with
+colorPicker.addEventListener("input", colorPickerNewColor, false);
+colorPicker.addEventListener("change", colorPickerDismiss, false);
+
+
 
 // Process received websocket data
 websocket.onmessage = function (event) {

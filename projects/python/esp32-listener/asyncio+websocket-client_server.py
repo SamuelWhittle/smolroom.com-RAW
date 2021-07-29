@@ -8,6 +8,10 @@ import logging
 import websockets
 import websocket
 import ssl
+import threading
+from time import sleep
+from contextlib import suppress
+from socket import timeout
 
 logging.basicConfig()
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -18,13 +22,12 @@ ssl_key = "/etc/letsencrypt/live/smolroom.com/privkey.pem"
 
 ssl_context.load_cert_chain(ssl_cert, keyfile=ssl_key)
 
-STATE = {"value": 0}
 clientPicture = [0] * 3600
 picture = [0] * 3600
 
-USERS = set()
+state = False
 
-ws = websocket.WebSocket()
+USERS = set()
 
 def fillPicture(color):
     for i in range(900):
@@ -86,36 +89,77 @@ async def counter(websocket, path):
             if data["action"] == "allOff":    
                 fillPicture([0,0,0,0])
                 fillClientPicture([0,0,0,0])
-                ws.connect("ws://192.168.1.203/")
-                ws.send_binary([1])
-                ws.send_binary(picture)
-                ws.send_binary([0])
-                ws.close()
                 await notify_state()
             elif data["action"] == "allOn":
                 fillPicture(data["color"])
                 fillClientPicture([255, 255, 255, 0])
-                ws.connect("ws://192.168.1.203/")
-                ws.send_binary([1])
-                ws.send_binary(picture)
-                ws.send_binary([0])
-                ws.close()
                 await notify_state()
             elif data["action"] == "pixel":
                 setClientPixel(data["index"], data["color"])
                 setPixel(data["index"], data["color"])
-                ws.connect("ws://192.168.1.203/")
-                ws.send_binary([1])
-                ws.send_binary(picture)
-                ws.send_binary([0])
-                ws.close()
                 await notify_state()
             else:
                 logging.error("unsupported event: {}", data)
+            
+            #if not state:
+            #    statethread = stateThread(True)
+            #    statethread.start()
     finally:
         await unregister(websocket)
 
+class esp32Thread (threading.Thread):
+    def __init__(self, name):
+        threading.Thread.__init__(self)
+        self.name = name
+
+    def run(self):
+        print(self.name + ": Starting")
+
+        state = False
+
+        #wsapp = websocket.WebSocketApp("ws://192.168.1.203/")
+        #wsapp.run_forever()
+
+        wsapp = websocket.WebSocket()
+        wsapp.settimeout(5)
+
+        while True:
+            try:
+                wsapp.connect("ws://192.168.1.203/")
+                state = True
+                while state:
+                    try:
+                        wsapp.send_binary([1])
+                        wsapp.send_binary(picture)
+                        wsapp.send_binary([0])
+                        sleep(1/24)
+                    except Exception as inst:
+                        print(self.name + ": " + str(inst))
+                        state = False
+#                        with suppress(WebSocketTimeoutException):
+#                            print(self.name + ": attempting reconnect")
+#                            wsapp.connect("ws://192.168.1.203/")
+#                            wsapp.run_forever()
+            except Exception as inst:
+                print(self.name + ": " + str(inst))
+                sleep(5)
+
+        print(self.name + ": thread closing")
+
+class stateThread (threading.Thread):
+    def __init__(self, state):
+        threading.Thread.__init__(self)
+        self.state = state
+
+    def run(self):
+        global state
+        state = self.state
+
+esp32thread = esp32Thread("esp32thread")
+esp32thread.start()
+
 start_server = websockets.serve(counter, "0.0.0.0", 8001, ssl=ssl_context)
+print("listening")
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
