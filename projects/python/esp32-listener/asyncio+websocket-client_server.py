@@ -10,8 +10,6 @@ import websocket
 import ssl
 import threading
 from time import sleep
-from contextlib import suppress
-from socket import timeout
 
 logging.basicConfig()
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -24,8 +22,6 @@ ssl_context.load_cert_chain(ssl_cert, keyfile=ssl_key)
 
 clientPicture = [0] * 3600
 picture = [0] * 3600
-
-state = False
 
 USERS = set()
 
@@ -101,9 +97,6 @@ async def counter(websocket, path):
             else:
                 logging.error("unsupported event: {}", data)
             
-            #if not state:
-            #    statethread = stateThread(True)
-            #    statethread.start()
     finally:
         await unregister(websocket)
 
@@ -113,12 +106,9 @@ class esp32Thread (threading.Thread):
         self.name = name
 
     def run(self):
-        print(self.name + ": Starting")
+#        print(self.name + ": Starting")
 
         state = False
-
-        #wsapp = websocket.WebSocketApp("ws://192.168.1.203/")
-        #wsapp.run_forever()
 
         wsapp = websocket.WebSocket()
         wsapp.settimeout(5)
@@ -134,32 +124,20 @@ class esp32Thread (threading.Thread):
                         wsapp.send_binary([0])
                         sleep(1/24)
                     except Exception as inst:
-                        print(self.name + ": " + str(inst))
+#                        print(self.name + ": " + str(inst))
                         state = False
-#                        with suppress(WebSocketTimeoutException):
-#                            print(self.name + ": attempting reconnect")
-#                            wsapp.connect("ws://192.168.1.203/")
-#                            wsapp.run_forever()
+
             except Exception as inst:
-                print(self.name + ": " + str(inst))
+#                print(self.name + ": " + str(inst))
                 sleep(5)
 
         print(self.name + ": thread closing")
-
-class stateThread (threading.Thread):
-    def __init__(self, state):
-        threading.Thread.__init__(self)
-        self.state = state
-
-    def run(self):
-        global state
-        state = self.state
 
 esp32thread = esp32Thread("esp32thread")
 esp32thread.start()
 
 start_server = websockets.serve(counter, "0.0.0.0", 8001, ssl=ssl_context)
-print("listening")
+#print("listening")
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
