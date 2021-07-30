@@ -141,7 +141,7 @@ canvas.addEventListener('mousedown', event => {
 
 // mouse move
 canvas.addEventListener('mousemove', event => {
-    if (mouseIsDown === true) {
+    if (mouseIsDown) {
         canvasDrag(event);
     }
 });
@@ -164,18 +164,25 @@ canvas.addEventListener('touchstart', event => {
 
 // touch move
 canvas.addEventListener("touchmove", event => {
-  var touch = event.touches[0];
-  var mouseEvent = new MouseEvent("mousemove", {
-    clientX: touch.clientX,
-    clientY: touch.clientY
-  });
-  canvas.dispatchEvent(mouseEvent);
+    var touch = event.touches[0];
+    
+    var clientX = touch.clientX;
+    var clientY = touch.clientY;
+
+    if(clientX >= 0 && clientX <= squareSize*30 && clientY >= 0 && clientY <= squareSize*30) {
+        var mouseEvent = new MouseEvent("mousemove", {
+            clientX: clientX,
+            clientY: clientY
+        });
+
+        canvas.dispatchEvent(mouseEvent);
+    }
 }, false);
 
 // touch end
 window.addEventListener("touchend", event => {
-  var mouseEvent = new MouseEvent("mouseup", {});
-  window.dispatchEvent(mouseEvent);
+    var mouseEvent = new MouseEvent("mouseup", {});
+    window.dispatchEvent(mouseEvent);
 }, false);
 
 // When the window is resized
