@@ -5,68 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <style type="text/css">
-            html, body {
-                height: 100vh;
-                height: calc(var(--vh, 1vh) * 100);
-                margin: 0;
-                padding: 0;
-            }
-
-            body {
-                width: 100vw
-                overflow-y: scroll;
-                overscroll-behavior: none;
-            }
-
-            body::-webkit-scrollbar {
-                display: none;
-            }
-
-            * {
-                box-sizing: border-box;
-            }
-
-            canvas {
-                display: block;
-                margin: 0px auto;
-            }
-
-            .content {
-                position: relative;
-                width: 100%;
-                height: 100%;
-                display: grid;
-                grid-template-rows: [r1-s] 80% [r1-e r2-s] 10% [r2-e r3-s] 10% [r3-e];
-                grid-template-columns: [c1-s] 25% [c1-e c2-s] 25% [c2-e c3-s] 25% [c3-e c4-s] 25% [c4-e];
-            }
-
-            .canvasSlot {
-                grid-column: c1-s / c4-e;
-                grid-row: r1-s / r1-e;
-            }
-
-            .canvasContainer {
-            }
-
-            .controls {
-                position: relative;
-                grid-row: r2-s / r3-e;
-                grid-column: c1-s / c4-e;
-            }
-
-            .controls-general {
-                position: relative;
-                grid-row: r2-s / r2-e;
-                grid-column: c1-s / c4-e;
-            }
-            
-            .controls-image {
-                position: relative;
-                grid-row: r3-s / r3-e;
-                grid-column: c1-s / c4-e;
-            }
-        </style>
+        <link rel="stylesheet" href="./src/styles.css">
     </head>
     <body id="body">
         <div class="content" id="content">
