@@ -1,11 +1,12 @@
 // These are our HTML elements
 var canvas = document.getElementById('mainCanvas'),
+    canvasSlot = document.getElementById('canvasSlot'),
     users = document.querySelector('.users'),
     /*onButton = document.getElementById('onButton'),*/
     offButton = document.getElementById('offButton'),
     colorPicker = document.getElementById('colorPicker'),
+    input = document.getElementById('input'),
     websocket = new WebSocket("wss://smolroom.com:8001/");
-
 
 // ########## Global Variables ##########
 var picture;
@@ -23,7 +24,7 @@ var ctx = canvas.getContext("2d");
 
 
 
-// ########## Helper Functions ##########
+// ########## Color Helper Functions ##########
 
 // Converts {r : 0, g : 0, b : 0} to "rgb(0, 0, 0)"
 function rgbObjectToCssRgb(colorObject) {
@@ -72,15 +73,50 @@ function draw() {
 
 // ########## Event Functions ##########
 
+// LogFile
+function logFile(event) {
+    let result = event.target.result;
+
+    var img = new Image;
+
+    img.src = result;
+
+	let secondCanvas = document.createElement('canvas');
+    secondCtx = secondCanvas.getContext('2d');
+	secondCtx.drawImage(img, 0, 0);
+	console.log(result);
+}
+
+// Ran when image is selected
+function handleImgSubmit(event) {
+    var img = new Image;
+    img.src = URL.createObjectURL(event.target.files[0]);
+    img.onload = () => {
+        console.log(img);
+        ctx.drawImage(img, 0, 0);
+    };
+}
+
 // Window Events
 
 // Adjust canvas size and calculate optimal square size
 function adjustCanvasSize() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    if(canvas.width >= canvas.height) {
+    // First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+    let vh = window.innerHeight * 0.01;
+
+    // Then we set the value in the --vh custom property to the root of the document
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+    var canvasSlotWidth = canvasSlot.offsetWidth;
+    var canvasSlotHeight = canvasSlot.offsetHeight;
+
+    if(canvasSlotWidth >= canvasSlotHeight) {
+        canvas.height = canvasSlotHeight;
+        canvas.width = canvasSlotHeight;
         squareSize = canvas.height/30;
     } else {
+        canvas.height = canvasSlotWidth;
+        canvas.width = canvasSlotWidth;
         squareSize = canvas.width/30;
     }
 }
@@ -99,9 +135,9 @@ function canvasDrag(event) {
         if(gridX <= 29 && gridY <= 29) {
             if(event.buttons == 2) {
                 event.preventDefault();
-                sendToServer(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [0, 0, 0, 0]})); 
+                sendToServer(JSON.stringify({action: 'pixel', index: (gridX * 30) + gridY, color: [0, 0, 0, 0]})); 
             }else if(event.buttons == 1 || event.buttons == 0){
-                sendToServer(JSON.stringify({action: 'pixel', index: [gridX, gridY], color: [currentColorObject.r, currentColorObject.g, currentColorObject.b, 0]})); 
+                sendToServer(JSON.stringify({action: 'pixel', index: (gridX * 30) + gridY, color: [currentColorObject.r, currentColorObject.g, currentColorObject.b, 0]})); 
             }
         }
     }
@@ -122,6 +158,9 @@ function colorPickerDismiss() {
 
 
 // ########## Event Listeners ##########
+
+// Listen for an image being selected
+input.addEventListener('change', handleImgSubmit);
 
 // Send the command to turn off all the lights
 offButton.onclick = function (event) {

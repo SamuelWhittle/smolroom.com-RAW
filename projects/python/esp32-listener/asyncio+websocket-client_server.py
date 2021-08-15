@@ -23,37 +23,60 @@ ssl_context.load_cert_chain(ssl_cert, keyfile=ssl_key)
 clientPicture = [0] * 3600
 picture = [0] * 3600
 
+# reference array with indexes corresponding to 
+serverIndexRef = [0] * 900
+
 USERS = set()
 
+# Fill reference Array with index's
+def fillServerIndexRef():
+    for i in range(30):
+        for j in range(30):
+            serverIndexRef[getClientIndex(i, j)] = getServerIndex(i, j)
+
 # Fill the whole grid with a single color
-def fillPictureWithColor(color):
+def fillServerPictureWithColor(color):
     for i in range(900):
         for j in range(4):
-            picture[(i*4)+j] = color[j]
+            picture[(serverIndexRef[i] * 4) + j] = color[j]
 
 def fillClientPictureWithColor(color):
     for i in range(900):
         for j in range(4):
             clientPicture[(i*4)+j] = color[j]
 
+
+
 # Fill a single pixel with a color
-def setPixel(index, color):
+def setServerPixel(index, color):
     for i in range(4):
-        picture[getIndex(index) * 4 + i] = color[i]
+        picture[serverIndexRef[index] * 4 + i] = color[i]
 
 def setClientPixel(index, color):
-    relativeIndex = index[0] * 30 + index[1]
     for i in range(4):
-        clientPicture[(relativeIndex * 4) + i] = color[i]
+        clientPicture[(index * 4) + i] = color[i]
 
-def fillPictureWithFrame(picture, frame):
+
+
+def fillServerPictureWithFrame(frame):
     for i in range(900):
-        for j in range(4):
-            picture[(i * 4) + j] = frame[(i * 4) + j]
+            setServerPixel(i, [frame[i * 4], frame[i * 4 + 1], frame[i * 4 + 2], frame[i * 4 + 3]])
 
-# given an array of [x,y] find the single dimensional array that works with my physical matrix orientation
-def getIndex(index):
-    return 899 - (index[1]*30+index[0], index[1]*30+(30-1-index[0]))[index[1]%2]
+def fillClientPictureWithFrame(frame):
+    for i in range(900):
+            setClientPixel(i, [frame[i * 4], frame[i * 4 + 1], frame[i * 4 + 2], frame[i * 4 + 3]])
+
+
+
+# given i = x and j = y find single dimensional array that works with the CLIENT PICTURE/front end matrix orientation
+def getClientIndex(i, j):
+   return i * 30 + j
+
+# given i = x and j = y find the single dimensional array that works with the SERVER PICTURE/physical matrix orientation
+def getServerIndex(i, j):
+    return 899 - (j*30+i, j*30+(30-1-i))[j%2]
+
+
 
 # return a json dump with the client picture for sending back to the client after a change
 def state_event():
@@ -62,6 +85,8 @@ def state_event():
 # return a json dump with the number of active users to send to the client when there is a disconnect or connect
 def users_event():
     return json.dumps({"type": "users", "count": len(USERS)})
+
+
 
 # send the client picture to all connected users
 async def notify_state():
@@ -94,15 +119,15 @@ async def counter(websocket, path):
         async for message in websocket:
             data = json.loads(message)
             if data["action"] == "allOff":    
-                fillPictureWithColor([0,0,0,0])
+                fillServerPictureWithColor([0,0,0,0])
                 fillClientPictureWithColor([0,0,0,0])
                 await notify_state()
             elif data["action"] == "frame":
-                fillPictureWithFrame(picture, data["frame"])
-                fillPictureWithFrame(clientPicture, data["frame"])
+                fillServerPictureWithFrame(data["frame"])
+                fillClientPictureWithFrame(data["frame"])
                 await notify_state()
             elif data["action"] == "pixel":
-                setPixel(data["index"], data["color"])
+                setServerPixel(data["index"], data["color"])
                 setClientPixel(data["index"], data["color"])
                 await notify_state()
             else:
@@ -143,6 +168,9 @@ class esp32Thread (threading.Thread):
                 sleep(5)
 
         print(self.name + ": thread closing")
+
+
+fillServerIndexRef()
 
 # start esp32 thread
 esp32thread = esp32Thread("esp32thread")
