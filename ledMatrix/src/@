@@ -7,8 +7,6 @@ html, body {
 
 body {
     background: #474954;
-    background-color: #474954;
-    color: #FFFFFF;
     width: 100vw
     overflow-y: scroll;
     overscroll-behavior: none;
@@ -41,6 +39,9 @@ canvas {
     grid-row: r1-s / r1-e;
 }
 
+.canvasContainer {
+}
+
 .controls {
     position: relative;
     grid-row: r2-s / r3-e;
@@ -48,14 +49,12 @@ canvas {
 }
 
 .controls-general {
-    text-align: center;
     position: relative;
     grid-row: r2-s / r2-e;
     grid-column: c1-s / c4-e;
 }
 
 .controls-image {
-    text-align: center;
     position: relative;
     grid-row: r3-s / r3-e;
     grid-column: c1-s / c4-e;
