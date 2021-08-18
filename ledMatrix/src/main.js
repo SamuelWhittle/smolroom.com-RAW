@@ -4,12 +4,16 @@ var canvas = document.getElementById('mainCanvas'),
     users = document.querySelector('.users'),
     /*onButton = document.getElementById('onButton'),*/
     offButton = document.getElementById('offButton'),
+    sendPictureButton = document.getElementById('sendPicture'),
     colorPicker = document.getElementById('colorPicker'),
     input = document.getElementById('input'),
     websocket = new WebSocket("wss://smolroom.com:8001/");
 
 // ########## Global Variables ##########
 var picture;
+var frameBuffer = new Array(3600);
+frameBuffer.fill(0);
+
 var squareSize;
 var currentColorObject = {
     r: 255,
@@ -58,7 +62,7 @@ function draw() {
     adjustCanvasSize();
 
     ctx.fillStyle = "#888888";
-    ctx.fillRect(0, 0, squareSize*30, squareSize*30);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     for (var x = 0; x < 30; x++) {
         for (var y = 0; y < 30; y++) {
@@ -73,27 +77,64 @@ function draw() {
 
 // ########## Event Functions ##########
 
-// LogFile
-function logFile(event) {
-    let result = event.target.result;
-
-    var img = new Image;
-
-    img.src = result;
-
-	let secondCanvas = document.createElement('canvas');
-    secondCtx = secondCanvas.getContext('2d');
-	secondCtx.drawImage(img, 0, 0);
-	console.log(result);
-}
-
 // Ran when image is selected
 function handleImgSubmit(event) {
     var img = new Image;
     img.src = URL.createObjectURL(event.target.files[0]);
     img.onload = () => {
-        console.log(img);
-        ctx.drawImage(img, 0, 0);
+        var imgAspectRatio = img.naturalWidth/img.naturalHeight;
+        var adjustedImgWidth, adjustedImgHeight;
+
+
+        if(img.naturalWidth >= img.naturalHeight) {
+            adjustedImgWidth = canvas.width;
+            adjustedImgHeight = Math.floor(canvas.width/imgAspectRatio);
+        }else{
+            adjustedImgWidth = canvas.height*imgAspectRatio;
+            adjustedImgHeight = canvas.height;
+        }
+        
+        // After Image is drawn, grab the imageData
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, adjustedImgWidth, adjustedImgHeight);
+        var imgData = ctx.getImageData(0, 0, adjustedImgWidth, adjustedImgHeight);
+
+        //console.log(imgData)
+
+        var pictureX, pictureY, matrixX, matrixY, singleDimMatrixIndex, counter;
+
+        // For every value in the image data
+        for (var i = 0; i < imgData.data.length; i += 4) {
+            
+            // Figure out the X Y coords of the value in the image
+            pictureY = Math.floor(Math.floor(i/4)/imgData.width);
+            pictureX = Math.floor(i/4)%imgData.width;
+
+            // Figure out the X Y coords of the value in the matrix
+            matrixX = Math.floor(pictureX/squareSize);
+            matrixY = Math.floor(pictureY/squareSize);
+
+            // Figure out the single dimensional index of the matrix location out of 3600
+            singleDimMatrixIndex = (matrixX * 30 + matrixY) * 4;
+            
+            for(var j = 0; j < 3; j ++) {
+                frameBuffer[singleDimMatrixIndex + j] += imgData.data[i + j];
+            }
+            frameBuffer[singleDimMatrixIndex + 3] ++;
+        }
+
+        //console.log(frameBuffer);
+
+        frameBuffer = frameBuffer.map((color, index) => {
+            
+            if(index%4 == 3) {
+                return 0;
+            }
+            
+            var temp = (frameBuffer[index-(index%4)+3]);
+            if (temp == 0) return 0;
+            return Math.min(255, Math.max(0, Math.floor(color / temp)));
+            return 0;
+        });
     };
 }
 
@@ -101,15 +142,17 @@ function handleImgSubmit(event) {
 
 // Adjust canvas size and calculate optimal square size
 function adjustCanvasSize() {
-    // First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+    // get the viewport height and we multiple it by 0.01 to get a value for a 1% vh unit
     let vh = window.innerHeight * 0.01;
 
-    // Then we set the value in the --vh custom property to the root of the document
+    // set the value in the --vh custom property
     document.documentElement.style.setProperty('--vh', `${vh}px`);
 
+    // Grab canvas div size
     var canvasSlotWidth = canvasSlot.offsetWidth;
     var canvasSlotHeight = canvasSlot.offsetHeight;
 
+    // If canvas area width bigger than height
     if(canvasSlotWidth >= canvasSlotHeight) {
         canvas.height = canvasSlotHeight;
         canvas.width = canvasSlotHeight;
@@ -135,9 +178,22 @@ function canvasDrag(event) {
         if(gridX <= 29 && gridY <= 29) {
             if(event.buttons == 2) {
                 event.preventDefault();
-                sendToServer(JSON.stringify({action: 'pixel', index: (gridX * 30) + gridY, color: [0, 0, 0, 0]})); 
+                sendToServer(JSON.stringify({
+                    action: 'pixel', 
+                    index: (gridX * 30) + gridY, 
+                    color: [0, 0, 0, 0]
+                })); 
             }else if(event.buttons == 1 || event.buttons == 0){
-                sendToServer(JSON.stringify({action: 'pixel', index: (gridX * 30) + gridY, color: [currentColorObject.r, currentColorObject.g, currentColorObject.b, 0]})); 
+                sendToServer(JSON.stringify({
+                    action: 'pixel', 
+                    index: (gridX * 30) + gridY, 
+                    color: [
+                        currentColorObject.r, 
+                        currentColorObject.g, 
+                        currentColorObject.b, 
+                        0
+                    ]
+                })); 
             }
         }
     }
@@ -161,6 +217,13 @@ function colorPickerDismiss() {
 
 // Listen for an image being selected
 input.addEventListener('change', handleImgSubmit);
+
+// Send frame in the buffer to the server
+sendPictureButton.onclick = function (event) {
+    //console.log(frameBuffer);
+    websocket.send(JSON.stringify({action: 'frame', frame: frameBuffer}));
+    frameBuffer.fill(0);
+}
 
 // Send the command to turn off all the lights
 offButton.onclick = function (event) {
