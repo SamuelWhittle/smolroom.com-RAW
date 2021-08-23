@@ -35,11 +35,16 @@ class perlinNoise {
         });
         //console.log("grid steps array:", this.gridSteps);
 
+        // array of grid dimensions, one set of dimensions for each octave's grid
+        this.gridSizes = new Array(this.numOctaves);
+
         //Array containing all the grids of vectors
         this.grids = new Array(this.numOctaves).fill().map((_, index) => {
 
             //Get the current octave grid dimensions
             var currentGridDimensions = this.getGridDimensions(this.noiseDimensions, this.gridSteps[index]);
+            this.gridSizes[index] = currentGridDimensions;
+            //console.log(currentGridDimensions);
 
             //Create grid of vectors based on the current octave grid dimensions and a number of dimensions to make the vectors
             var grid = this.createFullFlatGrid(currentGridDimensions);
@@ -56,7 +61,7 @@ class perlinNoise {
         //console.log("Length Constants =", this.lengthConstants);
 
 
-        //array of unit corners based on the number of dimensions in play
+        //array of unit corners based on the number of dimensions in play used to locate local corners
         this.unitCorners = new Array(Math.pow(2, this.noiseDimensions.length)).fill().map((_, index) => {
             return this.numToBinArr(index);
         });
@@ -65,6 +70,17 @@ class perlinNoise {
         //console.log("Unit Corners:", this.unitCorners);
 
         //console.groupEnd();
+    }
+
+    // takes an x, presumably somewhere on a lerp, and makes it a smooth interpolation vs linear
+    smoothStep(x) {
+        return x*x*(3-2*x);
+    }
+
+    // Linear Interpolation function with calculation inserted to produce a smooth interp
+    smoothInterp(start, stop, position){
+        smoothPos = this.smoothStep(position);
+        return start * (1 - smoothPos) + stop * smoothPos
     }
 
     //Dot Product
@@ -77,19 +93,28 @@ class perlinNoise {
     }
 
 
-    //Given a set of coords, the grids, and the grid steps, calcualte a point of noise
+    //Given a set of coords, the grids, and the grid steps, calculate a point of noise
     getNoisePixel(coords) {
+        //console.log("start; coords: ", coords);
         //For each gridStep in GridSteps, get the gridStep and octave and do stuff with em
         return this.gridSteps.reduce((acc, gridStep, octave) => {
             //console.group("Octave: " + octave.toString());
             //console.log("Current gridStep:", gridStep);
 
+            // "local" here-in means "dealing with the grid square the pixel is in"
+            // localCornerFloors is the uppermost left grid location 
+            //  e.g.(coords = [x, y] = [45, 50], gridStep = 30,
+            //  localCornerFloors would be [1, 1]
             var localCornerFloors = coords.map(val => Math.floor(val/gridStep));
 
+            // add the local corner floors to the unit corners to get the local corners surrounding the point
             var localCorners = this.unitCorners
                 .map((unitCorner) => unitCorner
-                    .map((value, index) => value + localCornerFloors[index]));
+                    .map((value, index) => (value + localCornerFloors[index])%this.gridSizes[octave][index]));
             //console.log("Local Corners:", localCorners);
+
+            // Modules local Corners to create looping noise overflow
+            // ¯\_(ツ)_/¯
 
             var localCornerVectors = localCorners
                 .map((coords) => this.dotProduct(coords, this.lengthConstants[octave]))

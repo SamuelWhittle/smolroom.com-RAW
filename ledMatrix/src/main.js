@@ -130,11 +130,21 @@ function handleImgSubmit(event) {
                 return 0;
             }
             
-            var temp = (frameBuffer[index-(index%4)+3]);
-            if (temp == 0) return 0;
-            return Math.min(255, Math.max(0, Math.floor(color / temp)));
-            return 0;
+            var divideBy = (frameBuffer[index-(index%4)+3]);
+            if (divideBy == 0) return 0;
+
+            toReturn =  Math.min(255, Math.max(0, Math.floor(color / divideBy)));
+            return toReturn;
         });
+        
+        /* This turns off any pixel that was probably supposed to be black but came out kinda grey
+        for(var i = 0; i < frameBuffer.length; i += 4) {
+            if ((frameBuffer[i] == frameBuffer[i + 1]) && (frameBuffer[i] == frameBuffer[i + 2]) && frameBuffer[i] < 25) {
+                frameBuffer[i] = frameBuffer[i + 1] = frameBuffer[i + 2] = 0;
+            }
+        }*/
+
+        //console.log(frameBuffer);
     };
 }
 

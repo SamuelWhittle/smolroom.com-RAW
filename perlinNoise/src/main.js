@@ -48,7 +48,7 @@ function main() {
     // Make sure canvas is the right size
     adjustCanvasSize();
     
-    // perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels), gridStep, numOctaves, octaveScale])
+    // perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels)], gridStep, numOctaves, octaveScale])
     noise = new perlinNoise([c.width, c.height, timelineInput.max + 1], 200, 4, 1/3, smoothInterp);
     console.log("Ready...");
     
