@@ -4,6 +4,7 @@ class perlinNoise {
         //console.group("constructor");
         // interp function
         this.interp = interp ?? ((start, end, ratio) => {
+            ratio = ratio*ratio*(3-2*ratio);
             return start*(1-ratio)+end*ratio;
         });
 
@@ -37,6 +38,7 @@ class perlinNoise {
 
         // array of grid dimensions, one set of dimensions for each octave's grid
         this.gridSizes = new Array(this.numOctaves);
+        //console.log(this.gridSizes);
 
         //Array containing all the grids of vectors
         this.grids = new Array(this.numOctaves).fill().map((_, index) => {
@@ -83,6 +85,11 @@ class perlinNoise {
         return start * (1 - smoothPos) + stop * smoothPos
     }
 
+    // transform a number from one range to another range
+    map(num, oldMin, oldMax, min, max) {
+        return (num-oldMin)/(oldMax-oldMin)*(max-min)+min;
+    }
+
     //Dot Product
     dotProduct(vector1, vector2) {
         return vector1.map((val, index) => {
@@ -95,7 +102,8 @@ class perlinNoise {
 
     //Given a set of coords, the grids, and the grid steps, calculate a point of noise
     getNoisePixel(coords) {
-        //console.log("start; coords: ", coords);
+        //console.log("coords: ", coords);
+        //console.log("gridSizes: ", this.gridSizes)
         //For each gridStep in GridSteps, get the gridStep and octave and do stuff with em
         return this.gridSteps.reduce((acc, gridStep, octave) => {
             //console.group("Octave: " + octave.toString());
@@ -110,20 +118,24 @@ class perlinNoise {
             // add the local corner floors to the unit corners to get the local corners surrounding the point
             var localCorners = this.unitCorners
                 .map((unitCorner) => unitCorner
-                    .map((value, index) => (value + localCornerFloors[index])%this.gridSizes[octave][index]));
-            //console.log("Local Corners:", localCorners);
+                    .map((value, index) => (value + localCornerFloors[index])/*%this.gridSizes[octave][index]*/));
+            //console.log("LocalCorners pre-modules:", localCorners);
 
-            // Modules local Corners to create looping noise overflow
-            // ¯\_(ツ)_/¯
-
-            var localCornerVectors = localCorners
-                .map((coords) => this.dotProduct(coords, this.lengthConstants[octave]))
-                    .map(val => this.grids[octave][val]);
-            //console.log("local corner vectors:", localCornerVectors);
-
+            // get the pixel locations of the local corners given the grid locations of the local corners
             var localPixelCorners = localCorners
                 .map((corner) => corner.map((val) => val*gridStep));
             //console.log("local pixel corners:", localPixelCorners);
+
+            localCorners = localCorners.map((corner) => corner.map((value, index) => value%this.gridSizes[octave][index]));
+            //console.log("localCorners post-modules:", localCorners);
+
+            // get the vectors that correspond to the local corners after they've been adjusted for looping overflow
+            var localCornerVectors = localCorners
+                .map((corner) => this.dotProduct(corner, this.lengthConstants[octave]))
+                    .map(val => this.grids[octave][val]);
+            //console.log("local corner vectors:", localCornerVectors);
+
+
 
             var localVectors = localPixelCorners
                 .map((corner) => corner

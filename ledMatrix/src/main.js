@@ -4,6 +4,7 @@ var canvas = document.getElementById('mainCanvas'),
     users = document.querySelector('.users'),
     /*onButton = document.getElementById('onButton'),*/
     offButton = document.getElementById('offButton'),
+    sendNoiseButton = document.getElementById('sendNoiseButton'),
     sendPictureButton = document.getElementById('sendPicture'),
     colorPicker = document.getElementById('colorPicker'),
     input = document.getElementById('input'),
@@ -23,8 +24,14 @@ var currentColorObject = {
 
 var mouseIsDown = false;
 
+var noiseCounter = 0;
+var noiseInterval;
+var noise;
+
 // Canvas Context for drawing
 var ctx = canvas.getContext("2d");
+
+// ########## Noise Helper Functions ##########
 
 
 
@@ -235,9 +242,32 @@ sendPictureButton.onclick = function (event) {
     frameBuffer.fill(0);
 }
 
+// send some noise until the button is clicked again
+sendNoiseButton.onclick = function (event) {
+    noise = new perlinNoise([300, 300, 100], 100, 3, 1/3);
+    noiseInterval = setInterval(sendNoise, 1000/24);
+}
+
+// Send Noise to the server on an interval
+function sendNoise() {
+    for(var x = 0; x < 30; x++) {
+        for(var y = 0; y < 30; y++) {
+            color = noise.getNoisePixel([x*10, y*10, noiseCounter]);
+            frameBuffer[(x*30 + y) * 4 + 2] = Math.floor(noise.map(color, -1, 1, 0, 255));
+        }
+    }
+
+    websocket.send(JSON.stringify({action: 'frame', frame: frameBuffer}));
+    //console.log(frameBuffer);
+
+    noiseCounter ++;
+    if(noiseCounter == 51) noiseCounter = 0;
+}
+
 // Send the command to turn off all the lights
 offButton.onclick = function (event) {
     websocket.send(JSON.stringify({action: 'allOff'}));
+    clearInterval(noiseInterval);
 }
 
 // canvas right click
