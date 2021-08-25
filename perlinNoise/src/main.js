@@ -34,7 +34,7 @@ function draw() {
 
      for(var x = 0; x < c.width; x+=scale) {
          for(var y = 0; y < c.height; y+=scale) {
-            color = noise.getNoisePixel([x,y, timelineInput.value]);
+            color = noise.getNoisePixel([x,y, Number(timelineInput.value)]);
             r = g = b = map(color, -1, 1, 0, 255);
             ctx.fillStyle = `rgb( ${r}, ${g}, ${b})`;
             ctx.fillRect(x, y, scale, scale);
@@ -49,8 +49,8 @@ function main() {
     adjustCanvasSize();
     
     // perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels)], gridStep, numOctaves, octaveScale])
-    noise = new perlinNoise([c.width, c.height, timelineInput.max/2], 200, 4, 1/3);
-    console.log("noise size: ", [c.width, c.height, timelineInput.max/2]);
+    noise = new perlinNoise([c.width, c.height, Number(timelineInput.max)/10], Number(largestOctaveInput.value), 3, 1/3);
+    //console.log("noise size: ", [c.width, c.height, timelineInput.max/2]);
     
     draw();
 }
@@ -80,7 +80,7 @@ timelineInput.addEventListener('input', draw);
 redrawInput.addEventListener('click', () => {
     timelineInput.max = Number(ageInput.value);
     scale = Number(resolution.value);
-    noise = new perlinNoise([c.width, c.height, timelineInput.max + 1], Number(largestOctaveInput.value), 4, 1/3, smoothInterp);
+    noise = new perlinNoise([c.width, c.height, Number(timelineInput.max)/10], Number(largestOctaveInput.value), 3, 1/3);
     draw();
 });
 
