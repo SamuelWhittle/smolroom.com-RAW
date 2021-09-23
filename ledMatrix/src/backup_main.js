@@ -11,9 +11,6 @@ var canvas = document.getElementById('mainCanvas'),
     websocket = new WebSocket("wss://smolroom.com:8001/");
 
 // ########## Global Variables ##########
-// The interval at which this script will ping the server for updates
-var updateInterval;
-
 // holds the pixel data displayed on the canvas
 var picture;
 
@@ -22,8 +19,6 @@ var frameBuffer = new Array(3600);
 frameBuffer.fill(0);
 
 // larger array used to store multiple frames in a 2d array to be sent to the server
-var videoCounter = 0;
-var numVideoFrames = 120;
 var videoBuffer;
 
 // how big to make each grid square on the canvas
@@ -40,7 +35,7 @@ var currentColorObject = {
 var mouseIsDown = false;
 
 // used for looping perlin noise
-//var noiseCounter = 0;
+var noiseCounter = 0;
 var noiseInterval;
 var noise;
 
@@ -256,57 +251,46 @@ sendPictureButton.onclick = function (event) {
 // send some noise until the button is clicked again
 sendNoiseButton.onclick = function (event) {
     noise = new perlinNoise([30, 30, 30], 30, 3, 1/3);
-    
-    videoBuffer = new Array(numVideoFrames);
-    
-    for (let i = 0; i < videoBuffer.length; i++) {
-        videoBuffer[i] = new Array(3600).fill(0);
-    }
-    
-    //console.log(videoBuffer);
+//    videoBuffer = new Array(3600 * 120).fill(0);
+//    noiseInterval = setInterval(sendNoise, 1000/24);
 
-    for(var i = 0; i < numVideoFrames; i ++) {
+    websocket.send(JSON.stringify({action: "videoBufferReset", numFrames: 90}));
+
+    for(var i = 0; i < 90; i ++) {
         for(var x = 0; x < 30; x++) {
             for(var y = 0; y < 30; y++) {
                 color = noise.getNoisePixel([x, y, i]);
-                
-                if (color <= 0) {    
-                    videoBuffer[i][((x * 30 + y) * 4)] = 0;
-                    videoBuffer[i][((x * 30 + y) * 4) + 1] = 0;
-                    videoBuffer[i][((x * 30 + y) * 4) + 2] = Math.floor(map(color, -1, 0, 255, 0));
-                } else if (color > 0 && color <= 0.1) {
-                    videoBuffer[i][((x * 30 + y) * 4)] = Math.floor(map(color, 0, 0.1, 0, 255));
-                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(map(color, 0, 0.1, 0, 255));
-                    videoBuffer[i][((x * 30 + y) * 4) + 2] = 0;
-                } else if (color > 0.1) {
-                    videoBuffer[i][((x * 30 + y) * 4)] = 0;
-                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(map(color, 0.1, 1, 0, 255));
-                    videoBuffer[i][((x * 30 + y) * 4) + 2] = 0;
-                }
+                frameBuffer[(x*30 + y) * 4] = Math.floor(noise.map(color, -1, 1, 0, 255));
             }
+        }
+console.log("frame:", frameBuffer);
+        websocket.send(JSON.stringify({action: 'setVideoFrame', frameNumber: i, frame: frameBuffer}));
+    }
+
+    websocket.send(JSON.stringify({action: 'videoStart'}));
+}
+
+// Send Noise to the server on an interval
+function sendNoise() {
+    //console.log(noiseCounter);
+    for(var x = 0; x < 30; x++) {
+        for(var y = 0; y < 30; y++) {
+            color = noise.getNoisePixel([x, y, noiseCounter]);
+            frameBuffer[(x*30 + y) * 4 + 2] = Math.floor(noise.map(color, -1, 1, 0, 255));
         }
     }
 
-    //websocket.send(JSON.stringify({action: 'videoStart'}));
-    noiseInterval = setInterval(sendVideoFrame, 1000/24);
-}
+    websocket.send(JSON.stringify({action: 'frame', frame: frameBuffer}));
+    //console.log(frameBuffer);
 
-function sendVideoFrame() {
-    if(videoCounter < numVideoFrames) {
-        //console.log(videoBuffer[videoCounter]);
-        websocket.send(JSON.stringify({action: 'frame', frame: videoBuffer[videoCounter]}));
-        videoCounter++;
-    } else {
-        videoCounter = 0;
-        //clearInterval(videoSendingInterval);
-        //websocket.send(JSON.stringify({action: 'videoStart'}));
-    }
+    noiseCounter ++;
+    if(noiseCounter == 120) noiseCounter = 0;
 }
 
 // Send the command to turn off all the lights
 offButton.onclick = function (event) {
     websocket.send(JSON.stringify({action: 'allOff'}));
-    clearInterval(noiseInterval);
+    //clearInterval(noiseInterval);
 }
 
 // canvas right click
@@ -335,10 +319,9 @@ window.addEventListener('mouseup', event => {
 // touch start
 canvas.addEventListener('touchstart', event => {
     var touch = event.touches[0];
-
     var mouseEvent = new MouseEvent('mousedown', {
-        clientX: touch.pageX + canvas.offsetLeft,
-        clientY: touch.pageY + canvas.offsetTop
+        clientX: touch.clientX,
+        clientY: touch.clientY
     });
 
     canvas.dispatchEvent(mouseEvent);
@@ -348,17 +331,17 @@ canvas.addEventListener('touchstart', event => {
 canvas.addEventListener("touchmove", event => {
     var touch = event.touches[0];
     
-    //var clientX = touch.clientX + canvas.offsetLeft;
-    //var clientY = touch.clientY;
+    var clientX = touch.clientX;
+    var clientY = touch.clientY;
 
-    //if(clientX >= canvas.offsetLeft && clientX <= squareSize*30 + canvas.offsetLeft && clientY >= canvas.offsetTop && clientY <= squareSize*30 + canvas.offsetTop) {
+    if(clientX >= 0 && clientX <= squareSize*30 && clientY >= 0 && clientY <= squareSize*30) {
         var mouseEvent = new MouseEvent("mousemove", {
-            clientX: touch.pageX + canvas.offsetLeft,
-            clientY: touch.pageY + canvas.offsetTop
+            clientX: clientX,
+            clientY: clientY
         });
 
         canvas.dispatchEvent(mouseEvent);
-    //}
+    }
 }, false);
 
 // touch end
@@ -395,13 +378,3 @@ websocket.onmessage = function (event) {
                 "unsupported event", data);
     }
 };
-
-function getPicture() {
-    websocket.send(JSON.stringify({"action": "getPicture"}));
-}
-
-function main() {
-    updateInterval = setInterval(getPicture, 1000/24);
-}
-
-main();

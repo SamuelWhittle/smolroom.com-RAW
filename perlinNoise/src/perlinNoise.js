@@ -87,11 +87,6 @@ class perlinNoise {
         return start * (1 - smoothPos) + stop * smoothPos;
     }
 
-    // transform a number from one range to another range
-    map(num, oldMin, oldMax, min, max) {
-        return (num-oldMin)/(oldMax-oldMin)*(max-min)+min;
-    }
-
     //Dot Product
     dotProduct(vector1, vector2) {
         //console.log("vector 1", vector1, "vector2", vector2)
@@ -240,4 +235,10 @@ class perlinNoise {
 
         return total;
     }
+}
+
+
+// transform a number from one range to another range
+function map(num, oldMin, oldMax, min, max) {
+    return (num-oldMin)/(oldMax-oldMin)*(max-min)+min;
 }
