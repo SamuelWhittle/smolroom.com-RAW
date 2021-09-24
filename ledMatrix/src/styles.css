@@ -32,31 +32,70 @@ canvas {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-rows: [r1-s] 80% [r1-e r2-s] 10% [r2-e r3-s] 10% [r3-e];
-    grid-template-columns: [c1-s] 25% [c1-e c2-s] 25% [c2-e c3-s] 25% [c3-e c4-s] 25% [c4-e];
+    grid-template-rows: [r1-s] 70% [r1-e r2-s] 30% [r2-e];
+    grid-template-columns: repeat(4, 25%);
 }
 
 .canvasSlot {
-    grid-column: c1-s / c4-e;
+    grid-column: 1 / 5;
     grid-row: r1-s / r1-e;
 }
 
 .controls {
-    position: relative;
-    grid-row: r2-s / r3-e;
-    grid-column: c1-s / c4-e;
+    display: inline-grid;
+    #position: relative;
+    grid-row: r2-s / r2-e;
+    grid-column: 1 / 5;
+    grid-template-columns: subgrid;
+    grid-template-rows: [r1] 25% [r2] 25% [r3] 50% [r4];
+    #background: red;
 }
 
 .controls-general {
     text-align: center;
-    position: relative;
-    grid-row: r2-s / r2-e;
-    grid-column: c1-s / c4-e;
+    #position: relative;
+    grid-row: r1 / r2;
+    grid-column: 1 / 5;
+    #outline: 1px solid green;
 }
 
 .controls-image {
     text-align: center;
-    position: relative;
-    grid-row: r3-s / r3-e;
-    grid-column: c1-s / c4-e;
+    #position: relative;
+    grid-row: r2 / r3;
+    grid-column: 1 / 5;
+    #outline: 1px solid blue;
+}
+
+.controls-noise {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: [r1] 25% [r2] 25% [r3] 25% [r4] 25% [r5];
+    text-align: center;
+    grid-row: r3 / r4;
+    grid-column: 1 / 5;
+}
+
+.controls-noise-colorOne {
+    text-align: center;
+    grid-row: r1 / r2;
+    grid-column: 1 / 5;
+}
+
+.controls-noise-colorTwo {
+    text-align: center;
+    grid-row: r2 / r3;
+    grid-column: 1 / 5;
+}
+
+.controls-noise-colorThree {
+    text-align: center;
+    grid-row: r3 / r4;
+    grid-column: 1 / 5;
+}
+
+.controls-noise-button {
+    text-align: center;
+    grid-row: r4 / r5;
+    grid-column: 1 / 5;
 }

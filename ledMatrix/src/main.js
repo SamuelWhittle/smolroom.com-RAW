@@ -4,6 +4,12 @@ var canvas = document.getElementById('mainCanvas'),
     users = document.querySelector('.users'),
     /*onButton = document.getElementById('onButton'),*/
     offButton = document.getElementById('offButton'),
+    noiseColorOnePicker = document.getElementById('noiseColorOne'),
+    noiseColorOneRange = document.getElementById('noiseColorOneRange'),
+    noiseColorTwoPicker = document.getElementById('noiseColorTwo'),
+    noiseColorTwoRange = document.getElementById('noiseColorTwoRange'),
+    noiseColorThreePicker = document.getElementById('noiseColorThree'),
+    noiseColorThreeRange = document.getElementById('noiseColorThreeRange'),
     sendNoiseButton = document.getElementById('sendNoiseButton'),
     sendPictureButton = document.getElementById('sendPicture'),
     colorPicker = document.getElementById('colorPicker'),
@@ -30,11 +36,7 @@ var videoBuffer;
 var squareSize;
 
 // the current color the user will draw with
-var currentColorObject = {
-    r: 255,
-    g: 128,
-    b: 0
-};
+var currentColorObject = hexToRgbObject(colorPicker.value);
 
 // are they clicking?
 var mouseIsDown = false;
@@ -265,41 +267,51 @@ sendNoiseButton.onclick = function (event) {
     
     //console.log(videoBuffer);
 
+    currentColorObject = hexToRgbObject(event.target.value);
+
+    var noiseColorOne = hexToRgbObject(noiseColorOnePicker.value);
+    var noiseColorTwo = hexToRgbObject(noiseColorTwoPicker.value);
+    var noiseColorThree = hexToRgbObject(noiseColorThreePicker.value);
+    //console.log(noiseColorOne, noiseColorTwo, noiseColorThree);
+    
+    var noiseColorOneMax = noiseColorOneRange.value;
+    var noiseColorTwoMax = noiseColorTwoRange.value;
+    var noiseColorThreeMax = noiseColorThreeRange.value;
+    //console.log(noiseColorOneMax, noiseColorTwoMax, noiseColorThreeMax);
+
     for(var i = 0; i < numVideoFrames; i ++) {
         for(var x = 0; x < 30; x++) {
             for(var y = 0; y < 30; y++) {
-                color = noise.getNoisePixel([x, y, i]);
+                var color = map(noise.getNoisePixel([x, y, i]), -1, 1, 0, 255);
                 
-                if (color <= 0) {    
-                    videoBuffer[i][((x * 30 + y) * 4)] = 0;
-                    videoBuffer[i][((x * 30 + y) * 4) + 1] = 0;
-                    videoBuffer[i][((x * 30 + y) * 4) + 2] = Math.floor(map(color, -1, 0, 255, 0));
-                } else if (color > 0 && color <= 0.1) {
-                    videoBuffer[i][((x * 30 + y) * 4)] = Math.floor(map(color, 0, 0.1, 0, 255));
-                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(map(color, 0, 0.1, 0, 255));
-                    videoBuffer[i][((x * 30 + y) * 4) + 2] = 0;
-                } else if (color > 0.1) {
-                    videoBuffer[i][((x * 30 + y) * 4)] = 0;
-                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(map(color, 0.1, 1, 0, 255));
-                    videoBuffer[i][((x * 30 + y) * 4) + 2] = 0;
+                if (color <= noiseColorOneMax) {
+                    videoBuffer[i][((x * 30 + y) * 4)] = Math.floor(noiseColorOne.r / 255 * color);
+                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(noiseColorOne.g / 255 * color);
+                    videoBuffer[i][((x * 30 + y) * 4) + 2] = Math.floor(noiseColorOne.b / 255 * color);
+                } else if (color > noiseColorOneMax && color <= noiseColorTwoMax) {
+                    videoBuffer[i][((x * 30 + y) * 4)] = Math.floor(noiseColorTwo.r / 255 * color);
+                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(noiseColorTwo.g / 255 * color);
+                    videoBuffer[i][((x * 30 + y) * 4) + 2] = Math.floor(noiseColorTwo.b / 255 * color);
+                } else if (color > noiseColorTwoMax && color <= noiseColorThreeMax) {
+                    videoBuffer[i][((x * 30 + y) * 4)] = Math.floor(noiseColorThree.r / 255 * color);
+                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(noiseColorThree.g / 255 * color);
+                    videoBuffer[i][((x * 30 + y) * 4) + 2] = Math.floor(noiseColorThree.b / 255 * color);
                 }
             }
         }
     }
 
     //websocket.send(JSON.stringify({action: 'videoStart'}));
+    clearInterval(noiseInterval);
     noiseInterval = setInterval(sendVideoFrame, 1000/24);
 }
 
 function sendVideoFrame() {
     if(videoCounter < numVideoFrames) {
-        //console.log(videoBuffer[videoCounter]);
         websocket.send(JSON.stringify({action: 'frame', frame: videoBuffer[videoCounter]}));
         videoCounter++;
     } else {
         videoCounter = 0;
-        //clearInterval(videoSendingInterval);
-        //websocket.send(JSON.stringify({action: 'videoStart'}));
     }
 }
 
