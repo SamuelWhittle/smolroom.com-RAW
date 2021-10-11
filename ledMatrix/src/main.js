@@ -4,17 +4,12 @@ var canvas = document.getElementById('mainCanvas'),
     users = document.querySelector('.users'),
     /*onButton = document.getElementById('onButton'),*/
     offButton = document.getElementById('offButton'),
-    noiseColorOnePicker = document.getElementById('noiseColorOne'),
-    noiseColorOneRange = document.getElementById('noiseColorOneRange'),
-    noiseColorTwoPicker = document.getElementById('noiseColorTwo'),
-    noiseColorTwoRange = document.getElementById('noiseColorTwoRange'),
-    noiseColorThreePicker = document.getElementById('noiseColorThree'),
-    noiseColorThreeRange = document.getElementById('noiseColorThreeRange'),
     sendNoiseButton = document.getElementById('sendNoiseButton'),
     sendPictureButton = document.getElementById('sendPicture'),
     colorPicker = document.getElementById('colorPicker'),
-    input = document.getElementById('input'),
-    websocket = new WebSocket("wss://smolroom.com:8001/");
+    input = document.getElementById('input');
+
+var websocket = new WebSocket("wss://smolroom.com:8001/");
 
 // ########## Global Variables ##########
 // The interval at which this script will ping the server for updates
@@ -29,7 +24,7 @@ frameBuffer.fill(0);
 
 // larger array used to store multiple frames in a 2d array to be sent to the server
 var videoCounter = 0;
-var numVideoFrames = 120;
+var numVideoFrames;
 var videoBuffer;
 
 // how big to make each grid square on the canvas
@@ -42,7 +37,6 @@ var currentColorObject = hexToRgbObject(colorPicker.value);
 var mouseIsDown = false;
 
 // used for looping perlin noise
-//var noiseCounter = 0;
 var noiseInterval;
 var noise;
 
@@ -70,8 +64,57 @@ function hexToRgbObject(hex) {
 const rgb = (r, g, b) => 
   `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
 
-function sendToServer(payload) {
-    websocket.send(payload);
+// hsv2rgb and rgb2hsv functions from @Adam Price on stack overflow
+// requires 0<=h,s,v<=1
+function HSVtoRGB(h, s, v) {
+    var r, g, b, i, f, p, q, t;
+    if (arguments.length === 1) {
+        s = h.s, v = h.v, h = h.h;
+    }
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+    return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+    };
+}
+
+// requires 0<=r,g,b<=255
+// returns 0<=h,s,v<=1
+function RGBtoHSV(r, g, b) {
+    if (arguments.length === 1) {
+        g = r.g, b = r.b, r = r.r;
+    }
+    var max = Math.max(r, g, b), min = Math.min(r, g, b),
+        d = max - min,
+        h,
+        s = (max === 0 ? 0 : d / max),
+        v = max / 255;
+
+    switch (max) {
+        case min: h = 0; break;
+        case r: h = (g - b) + d * (g < b ? 6: 0); h /= 6 * d; break;
+        case g: h = (b - r) + d * 2; h /= 6 * d; break;
+        case b: h = (r - g) + d * 4; h /= 6 * d; break;
+    }
+
+    return {
+        h: h,
+        s: s,
+        v: v
+    };
 }
 
 // ########## Core functions ##########
@@ -208,13 +251,13 @@ function canvasDrag(event) {
         if(gridX <= 29 && gridY <= 29) {
             if(event.buttons == 2) {
                 event.preventDefault();
-                sendToServer(JSON.stringify({
+                websocket.send(JSON.stringify({
                     action: 'pixel', 
                     index: (gridX * 30) + gridY, 
                     color: [0, 0, 0, 0]
                 })); 
             }else if(event.buttons == 1 || event.buttons == 0){
-                sendToServer(JSON.stringify({
+                websocket.send(JSON.stringify({
                     action: 'pixel', 
                     index: (gridX * 30) + gridY, 
                     color: [
@@ -257,7 +300,10 @@ sendPictureButton.onclick = function (event) {
 
 // send some noise until the button is clicked again
 sendNoiseButton.onclick = function (event) {
-    noise = new perlinNoise([30, 30, 30], 30, 3, 1/3);
+    var firstOctave = 20;
+    var thirdDim = 160;
+    numVideoFrames = thirdDim + firstOctave;
+    noise = new perlinNoise([30, 30, thirdDim], firstOctave, 3, 1/3);
     
     videoBuffer = new Array(numVideoFrames);
     
@@ -267,42 +313,22 @@ sendNoiseButton.onclick = function (event) {
     
     //console.log(videoBuffer);
 
-    currentColorObject = hexToRgbObject(event.target.value);
-
-    var noiseColorOne = hexToRgbObject(noiseColorOnePicker.value);
-    var noiseColorTwo = hexToRgbObject(noiseColorTwoPicker.value);
-    var noiseColorThree = hexToRgbObject(noiseColorThreePicker.value);
-    //console.log(noiseColorOne, noiseColorTwo, noiseColorThree);
-    
-    var noiseColorOneMax = noiseColorOneRange.value;
-    var noiseColorTwoMax = noiseColorTwoRange.value;
-    var noiseColorThreeMax = noiseColorThreeRange.value;
-    //console.log(noiseColorOneMax, noiseColorTwoMax, noiseColorThreeMax);
-
     for(var i = 0; i < numVideoFrames; i ++) {
         for(var x = 0; x < 30; x++) {
             for(var y = 0; y < 30; y++) {
-                var color = map(noise.getNoisePixel([x, y, i]), -1, 1, 0, 255);
-                
-                if (color <= noiseColorOneMax) {
-                    videoBuffer[i][((x * 30 + y) * 4)] = Math.floor(noiseColorOne.r / 255 * color);
-                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(noiseColorOne.g / 255 * color);
-                    videoBuffer[i][((x * 30 + y) * 4) + 2] = Math.floor(noiseColorOne.b / 255 * color);
-                } else if (color > noiseColorOneMax && color <= noiseColorTwoMax) {
-                    videoBuffer[i][((x * 30 + y) * 4)] = Math.floor(noiseColorTwo.r / 255 * color);
-                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(noiseColorTwo.g / 255 * color);
-                    videoBuffer[i][((x * 30 + y) * 4) + 2] = Math.floor(noiseColorTwo.b / 255 * color);
-                } else if (color > noiseColorTwoMax && color <= noiseColorThreeMax) {
-                    videoBuffer[i][((x * 30 + y) * 4)] = Math.floor(noiseColorThree.r / 255 * color);
-                    videoBuffer[i][((x * 30 + y) * 4) + 1] = Math.floor(noiseColorThree.g / 255 * color);
-                    videoBuffer[i][((x * 30 + y) * 4) + 2] = Math.floor(noiseColorThree.b / 255 * color);
-                }
+                var noiseValue = map(noise.getNoisePixel([x, y, i]), -1, 1, 0, 1);
+
+                var color = HSVtoRGB(noiseValue, 1, 0.1);
+
+                videoBuffer[i][((x * 30 + y) * 4)] = color.r;
+                videoBuffer[i][((x * 30 + y) * 4) + 1] = color.g;
+                videoBuffer[i][((x * 30 + y) * 4) + 2] = color.b;
             }
         }
     }
 
-    //websocket.send(JSON.stringify({action: 'videoStart'}));
     clearInterval(noiseInterval);
+    videoCounter = 0;
     noiseInterval = setInterval(sendVideoFrame, 1000/24);
 }
 
@@ -390,21 +416,26 @@ colorPicker.addEventListener("change", colorPickerDismiss, false);
 
 // Process received websocket data
 websocket.onmessage = function (event) {
-    data = JSON.parse(event.data);
-    switch (data.type) {
-        case 'state':
-            //console.log(data);
-            picture = data.picture;
-            draw();
-            break;
-        case 'users':
-            users.textContent = (
-                data.count.toString() + " user" +
-                (data.count == 1 ? "" : "s"));
-            break;
-        default:
-            console.error(
+    try {
+        data = JSON.parse(event.data);
+        switch (data.type) {
+            case 'state':
+                //console.log(data);
+                picture = data.picture;
+                draw();
+                break;
+            case 'users':
+                users.textContent = (
+                    data.count.toString() + " user" +
+                    (data.count == 1 ? "" : "s"));
+                break;
+            default:
+                console.error(
                 "unsupported event", data);
+        }
+    } catch (err) {
+        console.log("Error occurred processing message:");
+        console.log(event);
     }
 };
 

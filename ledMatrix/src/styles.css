@@ -76,26 +76,8 @@ canvas {
     grid-column: 1 / 5;
 }
 
-.controls-noise-colorOne {
-    text-align: center;
-    grid-row: r1 / r2;
-    grid-column: 1 / 5;
-}
-
-.controls-noise-colorTwo {
-    text-align: center;
-    grid-row: r2 / r3;
-    grid-column: 1 / 5;
-}
-
-.controls-noise-colorThree {
-    text-align: center;
-    grid-row: r3 / r4;
-    grid-column: 1 / 5;
-}
-
 .controls-noise-button {
     text-align: center;
-    grid-row: r4 / r5;
+    grid-row: r1 / r2;
     grid-column: 1 / 5;
 }
