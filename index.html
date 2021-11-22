@@ -1,29 +1,66 @@
 <!DOCTYPE html>
-<html>
-	<head lang="en">
-		<title>SmolRoom</title>	
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="stylesheet" href="./src/styles.css">
-	</head>
-	<body>
+<html lang="en">
+    <head>
+        <title>SmolRoom</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="./css/styles.css" rel="stylesheet">
+        <link href="./css/hamburger-menu/hamburger-menu.css" rel="stylesheet">
+        <script src="./src/main.js" defer></script>
+    </head>
+    <body>
         <canvas class="backgroundCanvas" id="backgroundCanvas"></canvas>
-        <div class="mainColumn">
-            <div class="headerBranding">
-                <p>Samuel Whittle
+        <header id="primary-header" class="primary-header flex">
+            <div class="logo ff-sans-cond uppercase text-white letter-spacing-2">
+                <p><strong>SmolRoom</strong></p>
             </div>
-            <div class="theList">
-                <p>Here's some stuff I've Made.</p>
 
-                <a href="./desaturation/index.html">Desaturation Scale</a>
-                <a href="./perlinNoise/index.html">Perlin Noise (3D Basic)</a>
-                <a href="./ledMatrix/index.html">LED Matrix Control</a>
+            <button class="mobile-nav-toggle hamburger-menu" aria-controls="primary-navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span class="visually-hidden">Menu</span>
+            </button>
+
+            <nav>
+                <ul id="primary-navigation" data-visible="false" class="primary-navigation flex">
+                    <li class="active">
+                        <a class="ff-sans-cond uppercase text-white letter-spacing-2" href="index.html">
+                            <span aria-hidden="true">00</span>Home
+                        </a>
+                    <li>
+                        <a class="ff-sans-cond uppercase text-white letter-spacing-2" href="./projects/">
+                            <span aria-hidden="true">01</span>Projects
+                        </a>
+                    <li>
+                        <a class="ff-sans-cond uppercase text-white letter-spacing-2" href="https://github.com/SamuelWhittle">
+                            <span aria-hidden="true">02</span>Github
+                        </a>
+                    <li>
+                        <a class="ff-sans-cond uppercase text-white letter-spacing-2" href="https://github.com/SamuelWhittle">
+                            <span aria-hidden="true">03</span>Contact
+                        </a>
+                </ul>
+            </nav>
+        </header>
+        <div class="content">
+            <div class="main-column-large flex">
+                <div class="main-even-columns">
+                    <a href="./projects/desaturation/">
+                        <img src="./projects/previews/desaturationScalePreview.png"></img>
+                    </a>
+                </div>
+                <div class="main-even-columns">
+                    <a href="./projects/perlinNoise/">
+                        <img src="./projects/previews/perlinNoise3DBasicPreview.png"></img>
+                    </a>
+                    <a href="./projects/ledMatrix/">
+                        <img src="./projects/previews/ledMatrixControlPreview.png"></img>
+                    </a>
+                </div>
             </div>
         </div>
-    <script>
-        console.log("Whatcha doing there bud? Taking a peak there bud?");
-    </script>
-    <script src="./src/main.js"></script>
-	</body>
+        <footer id="primary-footer" class="primary-footer flex">
+        </footer>
+    </body>
 </html>
