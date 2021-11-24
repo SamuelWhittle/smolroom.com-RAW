@@ -5,6 +5,61 @@
     --dropMenuBtnColor: none;
 }
 
+/* Utility Classes */
+
+.flex {
+    display: flex;
+    gap: var(--gap, 1rem);
+}
+
+.flex-justify-center {
+    justify-content: center;
+}
+
+.flex-justify-space-between {
+    justify-content: space-between;
+}
+
+.flex-justify-space-evenly {
+    justify-content: space-evenly;
+}
+
+.flex-dir-column {
+    flex-direction: column;
+}
+
+.general-reset {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.visually-hidden:not(:focus):not(:active) {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.ff-sans-cond {
+    font-family: sans-serif;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.text-white {
+    color: #FFFFFF;
+}
+
+.letter-spacing-2 {
+    letter-spacing: 2px;
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -159,54 +214,5 @@ body {
 }
 
 /* End Main Content */
-/* Utility Classes */
 
-.flex {
-    display: flex;
-    gap: var(--gap, 1rem);
-}
-
-.space-between {
-    justify-content: space-between;
-}
-
-.space-evenly {
-    justify-content: space-evenly;
-}
-
-.flex-dir-column {
-    flex-direction: column;
-}
-
-.general-reset {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.visually-hidden:not(:focus):not(:active) {
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-}
-
-.ff-sans-cond {
-    font-family: sans-serif;
-}
-
-.uppercase {
-    text-transform: uppercase;
-}
-
-.text-white {
-    color: #FFFFFF;
-}
-
-.letter-spacing-2 {
-    letter-spacing: 2px;
-}
 
