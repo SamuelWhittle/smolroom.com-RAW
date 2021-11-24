@@ -5,8 +5,6 @@
     --dropMenuBtnColor: none;
 }
 
-/*    For Phones    */
-
 * {
     padding: 0;
     margin: 0;
@@ -33,7 +31,9 @@ body {
     background: none;
     color: #FFFFFF;
 
-    overflow-y: scroll;
+    padding-top: 1rem;
+
+    /*overflow-y: scroll;*/
     overflow-x: hidden;
 }
 
@@ -44,7 +44,7 @@ body {
     z-index: -1;
 }
 
-/*    Primary Header    */
+/* Primary Header */
 
 .logo {
     margin: 2rem;
@@ -56,9 +56,8 @@ body {
 }
 
 .primary-header {
+    margin-bottom: 1rem;
     align-items: center;
-    justify-content: space-between;
-
 }
 
 .mobile-nav-toggle {
@@ -130,53 +129,55 @@ body {
     }
 }
 
-/*    End Primary Navigation    */
+/* End Primary Navigation */
+/* Start Main Content */
 
-.content {
-    display: grid;
-    grid-template-columns: 1fr 90% 1fr;
+.main-content {
+    flex-wrap: wrap;
 }
 
-.content a {
+.main-content a {
     color: #ffffff;
     text-decoration: none;
     text-align: center;
 }
 
-.content a:hover, .content a:focus {
+.main-content a:hover, .main-content a:focus {
     color: #eeeeee;
 }
 
-.content a:active {
+.main-content a:active {
     color: #dddddd;
 }
 
-.content img {
-    height: auto;
-    width: 100%;
+.main-content img {
+    height: 100%;
+    width: auto;
 }
 
-.main-column-large {
-    grid-column: 2;
-    flex-direction: row;
-    gap: 10px;
+.main-content-item {
+    height: 30rem;
+    border: 1px solid red;
 }
 
-.main-column-large > * {
-    flex-basis: 100%;
-}
-
-.main-even-columns {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/*    Utility Classes    */
+/* End Main Content */
+/* Utility Classes */
 
 .flex {
     display: flex;
     gap: var(--gap, 1rem);
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.space-evenly {
+    justify-content: space-evenly;
+}
+
+.flex-dir-column {
+    flex-direction: column;
 }
 
 .general-reset {

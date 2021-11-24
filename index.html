@@ -10,7 +10,7 @@
     </head>
     <body>
         <canvas class="backgroundCanvas" id="backgroundCanvas"></canvas>
-        <header id="primary-header" class="primary-header flex">
+        <header id="primary-header" class="primary-header flex space-between">
             <div class="logo ff-sans-cond uppercase text-white letter-spacing-2">
                 <p><strong>SmolRoom</strong></p>
             </div>
@@ -26,7 +26,7 @@
                 <ul id="primary-navigation" data-visible="false" class="primary-navigation flex">
                     <li class="active">
                         <a class="ff-sans-cond uppercase text-white letter-spacing-2" href="index.html">
-                            <span aria-hidden="true">00</span>Home
+                            <span aria-hidden="true">👀</span>Home
                         </a>
                     <li>
                         <a class="ff-sans-cond uppercase text-white letter-spacing-2" href="./projects/">
@@ -43,24 +43,22 @@
                 </ul>
             </nav>
         </header>
-        <div class="content">
-            <div class="main-column-large flex">
-                <div class="main-even-columns">
-                    <a href="./projects/desaturation/">
-                        <img src="./projects/previews/desaturationScalePreview.png"></img>
-                    </a>
-                </div>
-                <div class="main-even-columns">
-                    <a href="./projects/perlinNoise/">
-                        <img src="./projects/previews/perlinNoise3DBasicPreview.png"></img>
-                    </a>
-                    <a href="./projects/ledMatrix/">
-                        <img src="./projects/previews/ledMatrixControlPreview.png"></img>
-                    </a>
-                </div>
+        <div class="main-content flex space-evenly">
+            <div class="main-content-item">
+                <a href="./projects/desaturation/">
+                    <img src="./projects/desaturation/preview.png"></img>
+                </a>
+            </div>
+            <div class="main-content-item">
+                <a href="./projects/perlinNoise/">
+                    <img src="./projects/perlinNoise/preview.png"></img>
+                </a>
+            </div>
+            <div class="main-content-item">
+                <a href="./projects/ledMatrix/">
+                    <img src="./projects/ledMatrix/preview.png"></img>
+                </a>
             </div>
         </div>
-        <footer id="primary-footer" class="primary-footer flex">
-        </footer>
     </body>
 </html>
