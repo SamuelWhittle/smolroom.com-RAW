@@ -157,7 +157,6 @@ body {
 
 .main-content-item {
     height: 30rem;
-    border: 1px solid red;
 }
 
 /* End Main Content */
@@ -168,11 +167,15 @@ body {
     gap: var(--gap, 1rem);
 }
 
-.space-between {
+.flex-center {
+    justify-content: center;
+}
+
+.flex-space-between {
     justify-content: space-between;
 }
 
-.space-evenly {
+.flex-space-evenly {
     justify-content: space-evenly;
 }
 

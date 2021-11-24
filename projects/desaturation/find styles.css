@@ -1,0 +1,40 @@
+body {
+    overflow-y: scroll;
+    background-color: rgb(255, 128, 0);
+}
+
+canvas {
+    text-align: center;
+    margin: auto;
+    border: 1px solid black;
+}
+
+.centerColumn {
+    margin: auto;
+    width: 280px;
+    text-align: center;
+}
+
+.controls {
+    display: grid;
+    grid-template-rows: 75px 30px;
+    grid-template-columns: repeat(3, [column-start] 33%);
+}
+
+.labels {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    text-align: right;
+}
+
+.sliders {
+    grid-column: 2 / span 2;
+    grid-row: 1 / 2;
+    text-align: left;
+}
+
+.desaturateContainer {
+    grid-row: 2 / span 1;
+    grid-column: 1 / span 3;
+    text-align: center;
+}
