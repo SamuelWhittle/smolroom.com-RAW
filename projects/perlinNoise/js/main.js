@@ -20,8 +20,8 @@ function map(num, oldMin, oldMax, min, max){
 
 // Sets canvas size to be relative to the chrome window
 function adjustCanvasSize() {
-    c.width = c.offsetWidth;
-    c.height = c.offsetHeight;
+    c.width = canvasContainer.offsetWidth;
+    c.height = canvasContainer.offsetHeight;
 }
 
 // draw the current point in time on the canvas
@@ -38,7 +38,6 @@ function draw() {
             r = g = b = map(color, -1, 1, 0, 255);
             ctx.fillStyle = `rgb( ${r}, ${g}, ${b})`;
             ctx.fillRect(x, y, scale, scale);
-            //console.log(x, y);
          }
      }
 }
@@ -49,8 +48,7 @@ function main() {
     adjustCanvasSize();
     
     // perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels)], gridStep, numOctaves, octaveScale])
-    noise = new perlinNoise([c.width, c.height, Number(timelineInput.max)/10], Number(largestOctaveInput.value), 3, 1/3);
-    //console.log("noise size: ", [c.width, c.height, timelineInput.max/2]);
+    noise = new perlinNoise([c.width, c.height, 1000], 100, 3, 1/3);
     
     draw();
 }
@@ -60,11 +58,11 @@ function main() {
 var c = document.getElementById("mainCanvas");
 var ctx = c.getContext("2d");
 
+// Get Canvas Container
+var canvasContainer = document.querySelector('.canvasContainer');
+
 // Get Inputs
 var timelineInput = document.getElementById("timeline");
-
-var ageInput = document.getElementById("age");
-var largestOctaveInput = document.getElementById("largestOctave");
 var resolution = document.getElementById("resolution");
 
 var redrawInput = document.getElementById("redraw");
@@ -78,9 +76,8 @@ timelineInput.addEventListener('input', draw);
 
 // Age change
 redrawInput.addEventListener('click', () => {
-    timelineInput.max = Number(ageInput.value);
     scale = Number(resolution.value);
-    noise = new perlinNoise([c.width, c.height, Number(timelineInput.max)/10], Number(largestOctaveInput.value), 3, 1/3);
+    noise = new perlinNoise([c.width, c.height, 1000], 100, 3, 1/3);
     draw();
 });
 

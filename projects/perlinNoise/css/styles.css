@@ -1,0 +1,67 @@
+* {
+    padding: 0;
+    margin: 0;
+
+    overscroll-behavior-y: none;
+}
+
+html {
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+    height: calc(var(--vh, 1vh) * 100);
+
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body{
+    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
+
+    padding: 1rem 1rem;
+
+    overflow-x: hidden;
+}
+
+.canvasContainer {
+    height: 50vh;
+    border: 1px solid black;
+}
+
+#mainCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+.controls {
+    margin-inline: auto;
+}
+
+.controls input {
+    width: 30rem;
+}
+
+@media (max-width: 37rem) {
+    .controls {
+        width: 100%;
+    }
+
+    .controls input{
+        width: 100%;
+    }
+
+    .timelineContainer {
+        flex-direction: column;
+    }
+
+    .resolutionContainer {
+        flex-direction: column;
+    }
+}
+.newNoise {
+    display: block;
+    margin-inline: auto;
+}

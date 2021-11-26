@@ -1,4 +1,4 @@
-/* Utility Classes */
+/* Flex Box */
 
 .flex {
     display: flex;
@@ -21,6 +21,8 @@
     flex-direction: column;
 }
 
+/* General Properties */
+
 .general-reset {
     list-style: none;
     padding: 0;
@@ -37,6 +39,8 @@
     width: 1px;
 }
 
+/* Text Properties */
+
 .ff-sans-cond {
     font-family: sans-serif;
 }
@@ -51,4 +55,25 @@
 
 .letter-spacing-2 {
     letter-spacing: 2px;
+}
+
+/* Image Properties */
+
+.object-fit-fill {
+    /* adjusts image aspect ratio to match parent */
+    object-fit: fill;
+}
+
+.object-fit-contain {
+    /* Fits largest possible original aspect ratio image inside the parent */
+    object-fit: contain;
+}
+
+.object-fit-cover {
+    /* maintains original aspect ratio, scales image to match largest parent dimension */
+    object-fit: cover;
+}
+
+.object-fit-none {
+    object-fit: none;
 }
