@@ -133,24 +133,16 @@ body {
 
 .main-content-item {
     height: 30rem;
-    border: 1px solid red;
+    outline: 1px solid #404054;
+    transition: outline 150ms ease-in-out;
 }
 
-.main-content a {
-    color: #ffffff;
-    text-decoration: none;
-    text-align: center;
-}
-
-.main-content a:hover, .main-content a:focus {
-    color: #eeeeee;
-}
-
-.main-content a:active {
-    color: #dddddd;
+.main-content-item:hover, .main-content-item:focus-visible {
+    outline: 0.5rem solid #404054;
 }
 
 .main-content img {
+    vertical-align: bottom;
     width: 100%;
     height: 100%;
     object-fit: cover;

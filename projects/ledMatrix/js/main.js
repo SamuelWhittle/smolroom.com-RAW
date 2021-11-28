@@ -1,6 +1,6 @@
 // These are our HTML elements
 var canvas = document.getElementById('mainCanvas'),
-    canvasSlot = document.getElementById('canvasSlot'),
+    canvasContainer = document.getElementById('canvas-container'),
     users = document.querySelector('.users'),
     /*onButton = document.getElementById('onButton'),*/
     offButton = document.getElementById('offButton'),
@@ -33,8 +33,10 @@ var squareSize;
 // the current color the user will draw with
 var currentColorObject = hexToRgbObject(colorPicker.value);
 
-// are they clicking?
+// canvas drawing variables
 var mouseIsDown = false;
+let clickingX = 0;
+let clickingY = 0;
 
 // used for looping perlin noise
 var noiseInterval;
@@ -120,6 +122,7 @@ function RGBtoHSV(r, g, b) {
 // ########## Core functions ##########
 // Ensure the canvas is the correct size and draws what the light matrix looks like
 function draw() {
+    adjustDocumentHeight();
     adjustCanvasSize();
 
     ctx.fillStyle = "#888888";
@@ -213,26 +216,29 @@ function handleImgSubmit(event) {
 
 // Window Events
 
-// Adjust canvas size and calculate optimal square size
-function adjustCanvasSize() {
+//adjust window size
+function adjustDocumentHeight() {
     // get the viewport height and we multiple it by 0.01 to get a value for a 1% vh unit
     let vh = window.innerHeight * 0.01;
 
     // set the value in the --vh custom property
     document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
 
+// Adjust canvas size and calculate optimal square size
+function adjustCanvasSize() {
     // Grab canvas div size
-    var canvasSlotWidth = canvasSlot.offsetWidth;
-    var canvasSlotHeight = canvasSlot.offsetHeight;
+    var canvasContainerWidth = canvasContainer.offsetWidth;
+    var canvasContainerHeight = canvasContainer.offsetHeight;
 
     // If canvas area width bigger than height
-    if(canvasSlotWidth >= canvasSlotHeight) {
-        canvas.height = canvasSlotHeight;
-        canvas.width = canvasSlotHeight;
+    if(canvasContainerWidth >= canvasContainerHeight) {
+        canvas.height = canvasContainerHeight;
+        canvas.width = canvasContainerHeight;
         squareSize = canvas.height/30;
     } else {
-        canvas.height = canvasSlotWidth;
-        canvas.width = canvasSlotWidth;
+        canvas.height = canvasContainerWidth;
+        canvas.width = canvasContainerWidth;
         squareSize = canvas.width/30;
     }
 }
@@ -375,8 +381,8 @@ canvas.addEventListener('touchstart', event => {
     var touch = event.touches[0];
 
     var mouseEvent = new MouseEvent('mousedown', {
-        clientX: touch.pageX + canvas.offsetLeft,
-        clientY: touch.pageY + canvas.offsetTop
+        clientX: touch.pageX,
+        clientY: touch.pageY
     });
 
     canvas.dispatchEvent(mouseEvent);
@@ -391,8 +397,8 @@ canvas.addEventListener("touchmove", event => {
 
     //if(clientX >= canvas.offsetLeft && clientX <= squareSize*30 + canvas.offsetLeft && clientY >= canvas.offsetTop && clientY <= squareSize*30 + canvas.offsetTop) {
         var mouseEvent = new MouseEvent("mousemove", {
-            clientX: touch.pageX + canvas.offsetLeft,
-            clientY: touch.pageY + canvas.offsetTop
+            clientX: touch.pageX,
+            clientY: touch.pageY
         });
 
         canvas.dispatchEvent(mouseEvent);

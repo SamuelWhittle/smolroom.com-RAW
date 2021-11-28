@@ -27,7 +27,7 @@ body{
 }
 
 .canvasContainer {
-    height: 50vh;
+    height: 70vh;
     border: 1px solid black;
 }
 
@@ -45,6 +45,10 @@ body{
 }
 
 @media (max-width: 37rem) {
+    .canvasContainer {
+        height: 50vh;
+    }
+
     .controls {
         width: 100%;
     }
