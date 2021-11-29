@@ -8,6 +8,10 @@
     overscroll-behavior-y: none;
 }
 
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
 html {
     width: -webkit-fill-available;
     height: -webkit-fill-available;
@@ -15,12 +19,7 @@ html {
     box-sizing: border-box;
 }
 
-*, *:before, *:after {
-    box-sizing: inherit;
-}
-
 body {
-    width: 100%;
     min-height: 100vh;
     min-height: calc(var(--vh, 1vh) * 100);
 
@@ -132,9 +131,9 @@ body {
 }
 
 .main-content-item {
-    height: 30rem;
+    height: 25rem;
     outline: 1px solid #404054;
-    transition: outline 150ms ease-in-out;
+    transition: outline 100ms ease-in-out;
 }
 
 .main-content-item:hover, .main-content-item:focus-visible {

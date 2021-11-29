@@ -1,3 +1,26 @@
+/* General Page Setup */
+* {
+    padding: 0;
+    margin: 0;
+
+    overscroll-behavior-y: none;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+html {
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+    height: calc(var(--vh, 1vh) * 100);
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+}
+
 /* Flex Box */
 
 .flex {
