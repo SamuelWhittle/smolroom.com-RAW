@@ -1,27 +1,11 @@
 :root {
 }
 
-* {
-    padding: 0;
-    margin: 0;
-
-    overscroll-behavior-y: none;
-}
-
-*, *:before, *:after {
-    box-sizing: inherit;
-}
-
-html {
-    width: -webkit-fill-available;
-    height: -webkit-fill-available;
-    height: calc(var(--vh, 1vh) * 100);
-    box-sizing: border-box;
-}
-
 body {
-    min-height: 100vh;
-    min-height: calc(var(--vh, 1vh) * 100);
+    /*min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);*/
+    
+    padding: 1rem;
 
     background: none;
     color: #FFFFFF;
@@ -48,7 +32,7 @@ body {
 }
 
 .primary-header {
-    margin-block: 1rem;
+    margin-bottom: 1rem;
     align-items: center;
 }
 
@@ -126,8 +110,6 @@ body {
 
 .main-content {
     flex-wrap: wrap;
-    margin-bottom: 1rem;
-    margin-inline: 1rem;
 }
 
 .main-content-item {
