@@ -5,6 +5,9 @@ let mainCanvas = document.querySelector('.main-canvas');
 let ctx = mainCanvas.getContext('2d');
 
 // Global Variables
+
+ctx.strokeStyle = '#FFFFFF';
+
 let triangle = new Array(3).fill(new Array(2).fill(0));
 let bisectPoints = new Array(3).fill(new Array(2).fill(0));
 let b = new Array(3).fill(0);
@@ -20,10 +23,12 @@ window.addEventListener('load', updateCanvas);
 window.addEventListener('resize', updateCanvas);
 
 mainCanvas.addEventListener('mousedown', (event) => {
-    mouseDown = true;
-    pickUpPoint(event);
-    updateTriangle(event);
-    updateCanvas();
+    if(event.buttons == 1) {
+        mouseDown = true;
+        pickUpPoint(event);
+        updateTriangle(event);
+        updateCanvas();
+    }
 });
 
 window.addEventListener('mouseup', () => {
@@ -41,6 +46,9 @@ mainCanvas.addEventListener('mousemove', (event) => {
 function updateCanvas() {
     // Make sure canvas resolution matches window inner resolution
     adjustCanvasSize();
+    ctx.fillStyle = '#16161d';
+    ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+    ctx.fillStyle = '#FFFFFF';
 
     // Draw the thing
     drawCircumcenter(triangle);
@@ -52,6 +60,7 @@ function adjustCanvasSize() {
 }
 
 function drawCircumcenter(triToDraw) {
+    ctx.strokeStyle = '#FFFFFF';
     // Draw the Points
     triToDraw.map((point) => {
         ctx.beginPath();
@@ -69,9 +78,9 @@ function drawCircumcenter(triToDraw) {
 
     // Draw the bisecting perpendicular lines
     // Get Slopes of triangle sides
-    slopes[0] = -1 * (triangle[1][1] - triangle[0][1]) / (triangle[1][0] - triangle[0][0]);
-    slopes[1] = -1 * (triangle[2][1] - triangle[1][1]) / (triangle[2][0] - triangle[1][0]);
-    slopes[2] = -1 * (triangle[0][1] - triangle[2][1]) / (triangle[0][0] - triangle[2][0]);
+    slopes[0] = (triangle[1][1] - triangle[0][1]) / (triangle[1][0] - triangle[0][0]);
+    slopes[1] = (triangle[2][1] - triangle[1][1]) / (triangle[2][0] - triangle[1][0]);
+    slopes[2] = (triangle[0][1] - triangle[2][1]) / (triangle[0][0] - triangle[2][0]);
 
     // Get bisect points of triangle sides
     bisectPoints = triangle.map((point, pointIndex) => {
@@ -91,6 +100,16 @@ function drawCircumcenter(triToDraw) {
     bisectPoints.map((bisectPoint, bPIndex) => {
         drawNormalLine(bisectPoint[0], bisectPoint[1], slopes[bPIndex]);
     });
+
+
+
+    // Draw the circle x, x1, y1, m, x2, x3, y3, m2
+    let circumcenter = getCircumcenterPoint(bisectPoints[0][0], bisectPoints[0][1], -1/slopes[0],
+                                        bisectPoints[1][0], bisectPoints[1][1], -1/slopes[1], 
+                                        bisectPoints[2][0], bisectPoints[2][1], -1/slopes[2]);
+    ctx.beginPath();
+    ctx.arc(circumcenter[0], circumcenter[1], getDistance(circumcenter[0], circumcenter[1], triangle[0][0], triangle[0][1]), 0, 2*Math.PI)
+    ctx.stroke();
 }
 
 function drawNormalLine(x, y, m) {
@@ -98,9 +117,9 @@ function drawNormalLine(x, y, m) {
     // y = m(x-x1)+y1
     ctx.beginPath();
     if(m != 0 && isFinite(m)) {
-        const f = (x1) => (-1/m)*(x-x1)+y;
-        ctx.moveTo(0, f(0));
-        ctx.lineTo(mainCanvas.width, f(mainCanvas.width));
+        //const f = (x1) => (-1/m)*(x-x1)+y;
+        ctx.moveTo(0, getYOnPointSlope(x, y, -1/m, 0));
+        ctx.lineTo(mainCanvas.width, getYOnPointSlope(x, y, -1/m, mainCanvas.width));
     } else if(m == 0 || m == -0) {
         ctx.moveTo(x, 0);
         ctx.lineTo(x, mainCanvas.height);
@@ -109,6 +128,14 @@ function drawNormalLine(x, y, m) {
         ctx.lineTo(mainCanvas.width, y);
     }
     ctx.stroke();
+}
+
+function getYOnPointSlope(x, y, m, x1) {
+    return y-m*(x-x1);
+}
+
+function getXOnPointSlope(x, y, m, y1) {
+    return x-(y-y1)/m;
 }
 
 function pickUpPoint(event) {
@@ -135,6 +162,24 @@ function updateTriangle(event) {
 
 function getDistance(x, y, x1, y1) {
     return Math.sqrt(Math.pow(x1 - x, 2) + Math.pow(y1 - y, 2));
+}
+
+function getCircumcenterPoint(x1, y1, m1, x2, y2, m2, x3, y3, m3) {
+    // y=m(x - x1) + y1
+    // y2=m(x2 - x3) + y3
+    // assume y = y2 and return x
+
+    if(isFinite(m1) && isFinite(m2)) {    
+        return getInterceptPoint(x1, y1, m1, x2, y2, m2);
+    } else if(!isFinite(m1)){
+        return getInterceptPoint(x2, y2, m2, x3, y3, m3);
+    }
+    return getInterceptPoint(x1, y1, m1, x3, y3, m3);
+}
+
+function getInterceptPoint(x1, y1, m1, x2, y2, m2) { 
+    let interceptX = ((m1*x1)-(m2*x2)-y1+y2)/(m1-m2);
+    return [interceptX, m1 * (interceptX-x1) + y1];
 }
 
 // Setup
