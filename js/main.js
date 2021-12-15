@@ -11,6 +11,14 @@ const navToggle = document.querySelector('.mobile-nav-toggle');
 // ########## DOM Helpers ##########
 let ctx = backgroundCanvas.getContext('2d');
 
+let imgArray;
+
+let mainContentItemDims;
+
+
+
+//let imgNatDims;
+
 // ########## Event Listeners ##########
 navToggle.addEventListener('click', () => {
     const visibility = primaryNav.getAttribute('data-visible');
@@ -34,6 +42,18 @@ window.addEventListener('load', () => {
     backgroundCanvas.height = getBodyDimensions()[1]; 
 
     restartBackground();
+
+    //adjust picture sizes based on the main-content-items containing them
+    adjustImgDims();
+
+    /*imgNatDims = new Array(imgArray.length).fill(new Array(2));
+
+    imgNatDims = imgArray.map((img) => [img.naturalWidth, img.naturalHeight]);
+
+    imgArray.forEach((img, index) => {
+        img.style.setProperty('width', `${imgNatDims[index][0]}px`);
+        img.style.setProperty('height', `${imgNatDims[index][1]}px`);
+    });*/
 });
 
 window.addEventListener('resize', () => {
@@ -46,6 +66,8 @@ window.addEventListener('resize', () => {
     backgroundCanvas.height = getBodyDimensions()[1]; 
 
     restartBackground();
+    
+    adjustImgDims();
 });
 
 window.addEventListener("mousemove", (event) => {
@@ -62,6 +84,27 @@ window.addEventListener("mousemove", (event) => {
 });
 
 // ########## Do Stuff ##########
+
+function adjustImgDims() {
+    imgArray = Array.from(document.getElementsByTagName('img'));
+
+    mainContentItemDims = new Array(imgArray.length).fill(new Array(2));
+
+    imgArray.map((img, index) => {
+        if(window.innerWidth < 529) {
+            mainContentItemDims[index][0] = img.parentElement.parentElement.clientWidth;
+            mainContentItemDims[index][1] = img.parentElement.parentElement.clientHeight;
+
+            img.style.setProperty('width', `${mainContentItemDims[index][0]}px`);
+            img.style.setProperty('height', `${mainContentItemDims[index][1]}px`);
+        } else {
+            img.style.setProperty('width', `auto`);
+            img.style.setProperty('height', `100%`);
+        }
+    });
+
+    //console.log(mainContentItemDims);
+}
 
 function restartBackground() { 
     ctx.fillStyle = `#16161d`;

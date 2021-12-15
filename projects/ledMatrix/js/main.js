@@ -395,14 +395,12 @@ canvas.addEventListener("touchmove", event => {
     //var clientX = touch.clientX + canvas.offsetLeft;
     //var clientY = touch.clientY;
 
-    //if(clientX >= canvas.offsetLeft && clientX <= squareSize*30 + canvas.offsetLeft && clientY >= canvas.offsetTop && clientY <= squareSize*30 + canvas.offsetTop) {
-        var mouseEvent = new MouseEvent("mousemove", {
-            clientX: touch.pageX,
-            clientY: touch.pageY
-        });
+    var mouseEvent = new MouseEvent("mousemove", {
+        clientX: touch.pageX,
+        clientY: touch.pageY
+    });
 
-        canvas.dispatchEvent(mouseEvent);
-    //}
+    canvas.dispatchEvent(mouseEvent);
 }, false);
 
 // touch end
