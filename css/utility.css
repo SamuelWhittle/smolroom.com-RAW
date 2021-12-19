@@ -7,13 +7,12 @@
 *, *:before, *:after {
     box-sizing: inherit;
 
-    overscroll-behavior-y: none;
+    overscroll-behavior: none;
 }
 
 html {
-    width: -webkit-fill-available;
-    height: -webkit-fill-available;
-    height: calc(var(--vh, 1vh) * 100);
+    max-height: 100vh;
+    max-height: calc(var(--vh, 1vh) * 100);
     box-sizing: border-box;
 }
 

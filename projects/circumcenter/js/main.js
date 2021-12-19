@@ -19,8 +19,17 @@ let mouseDown = false;
 let pointInHand = 0;
 
 // Event Listeners
-window.addEventListener('load', updateCanvas);
-window.addEventListener('resize', updateCanvas);
+window.addEventListener('load', () => {
+    adjustCanvasSize();
+    triangle[0] = [getRandomInt(mainCanvas.width-10) + 5, getRandomInt(mainCanvas.height-10) + 5];
+    triangle[1] = [getRandomInt(mainCanvas.width-10) + 5, getRandomInt(mainCanvas.height-10) + 5];
+    triangle[2] = [getRandomInt(mainCanvas.width-10) + 5, getRandomInt(mainCanvas.height-10) + 5];
+    updateCanvas();
+});
+window.addEventListener('resize', () => {
+    adjustCanvasSize();
+    updateCanvas();
+});
 
 mainCanvas.addEventListener('mousedown', (event) => {
     if(event.buttons == 1) {
@@ -45,7 +54,6 @@ mainCanvas.addEventListener('mousemove', (event) => {
 // Functions
 function updateCanvas() {
     // Make sure canvas resolution matches window inner resolution
-    adjustCanvasSize();
     ctx.fillStyle = '#16161d';
     ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
     ctx.fillStyle = '#FFFFFF';
@@ -182,7 +190,6 @@ function getInterceptPoint(x1, y1, m1, x2, y2, m2) {
     return [interceptX, m1 * (interceptX-x1) + y1];
 }
 
-// Setup
-triangle[0] = [300, 300];
-triangle[1] = [600, 300];
-triangle[2] = [450, 600];
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}

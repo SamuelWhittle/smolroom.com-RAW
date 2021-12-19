@@ -15,10 +15,6 @@ let imgArray;
 
 let mainContentItemDims;
 
-
-
-//let imgNatDims;
-
 // ########## Event Listeners ##########
 navToggle.addEventListener('click', () => {
     const visibility = primaryNav.getAttribute('data-visible');
@@ -37,23 +33,12 @@ window.addEventListener('load', () => {
     let vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
     
-    // Size the canvas to cover the whole window
-    backgroundCanvas.width = getBodyDimensions()[0];
-    backgroundCanvas.height = getBodyDimensions()[1]; 
-
+    // adjust size of background canvas and set color
     restartBackground();
 
     //adjust picture sizes based on the main-content-items containing them
     adjustImgDims();
 
-    /*imgNatDims = new Array(imgArray.length).fill(new Array(2));
-
-    imgNatDims = imgArray.map((img) => [img.naturalWidth, img.naturalHeight]);
-
-    imgArray.forEach((img, index) => {
-        img.style.setProperty('width', `${imgNatDims[index][0]}px`);
-        img.style.setProperty('height', `${imgNatDims[index][1]}px`);
-    });*/
 });
 
 window.addEventListener('resize', () => {
@@ -62,9 +47,6 @@ window.addEventListener('resize', () => {
     document.documentElement.style.setProperty('--vh', `${vh}px`);
 
     // size canvas to cover whole window
-    backgroundCanvas.width = getBodyDimensions()[0];
-    backgroundCanvas.height = getBodyDimensions()[1]; 
-
     restartBackground();
     
     adjustImgDims();
@@ -76,15 +58,14 @@ window.addEventListener("mousemove", (event) => {
         ctx.strokeStyle = `#404054`;
         ctx.beginPath();
         ctx.moveTo(lastMouseCoords[0], lastMouseCoords[1]);
-        ctx.lineTo(event.clientX, event.clientY + html.scrollTop);
+        ctx.lineTo(event.clientX, event.clientY);
         ctx.stroke();
     }
     lastMouseCoords[0] = event.clientX;
-    lastMouseCoords[1] = event.clientY + html.scrollTop;
+    lastMouseCoords[1] = event.clientY;
 });
 
-// ########## Do Stuff ##########
-
+// ########## functions ##########
 function adjustImgDims() {
     imgArray = Array.from(document.getElementsByTagName('img'));
 
@@ -106,7 +87,13 @@ function adjustImgDims() {
     //console.log(mainContentItemDims);
 }
 
-function restartBackground() { 
+function restartBackground() {
+    console.log('adjusting background canvas size');
+    // Size the canvas to cover the whole window
+    //let bodyDims = getBodyDimensions();
+    backgroundCanvas.width = window.innerWidth;
+    backgroundCanvas.height = window.innerHeight; 
+    
     ctx.fillStyle = `#16161d`;
     ctx.beginPath();
     ctx.fillRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
@@ -122,3 +109,5 @@ function getBodyDimensions () {
                        html.clientHeight, html.scrollHeight, html.offsetHeight);
     return dims;
 }
+
+// ########## Initial Setup ##########
