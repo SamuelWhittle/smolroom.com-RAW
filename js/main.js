@@ -88,7 +88,6 @@ function adjustImgDims() {
 }
 
 function restartBackground() {
-    console.log('adjusting background canvas size');
     // Size the canvas to cover the whole window
     //let bodyDims = getBodyDimensions();
     backgroundCanvas.width = window.innerWidth;
