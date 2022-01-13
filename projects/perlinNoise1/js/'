@@ -1,0 +1,74 @@
+// Document Elements
+let mainCanvas = document.getElementById('mainCanvas');
+
+// Drawing Context
+let ctx = mainCanvas.getContext('2d');
+
+// Global Variables
+let counter = 0;
+
+let canvasDivisor = 50;
+
+let dims = new Array(2);
+
+let angleNoise;
+let colorNoise;
+let intensityNoise;
+
+// Event Listeners
+window.addEventListener('load', () => {
+    adjustCanvasSize();
+    calculateConstants();
+    setInterval(drawLines, 1000/24);
+    //drawLines();
+});
+
+window.addEventListener('resize', () => {
+    adjustCanvasSize();
+    //startInterval();
+});
+
+// Custom Functions
+function drawLines() {
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+    for(let x = 0; x < dims[0]; x ++) {
+        for(let y = 0; y < dims[1]; y ++) {
+            let angle = angleNoise.getNoisePixel([x, y, counter]);
+            angle = map(angle, -1, 1, 0, Math.PI/10);
+
+            let color = colorNoise.getNoisePixel([x, y, counter]);
+            color = map(color, -1, 1, 0, 255);
+
+            let intensity = intensityNoise.getNoisePixel([x, y, counter]);
+            ctx.lineWidth = Math.floor(map(intensity, -1, 1, 0, 10));
+            let length = Math.floor(map(intensity, -1, 1, 0, 150));
+            let opacity = map(intensity, -1, 1, 0, 255);
+
+            ctx.strokeStyle = `rgba(${color}, ${color}, ${color}, ${opacity})`
+
+            ctx.beginPath();
+            ctx.moveTo(x * canvasDivisor, y * canvasDivisor);
+            ctx.lineTo(x * canvasDivisor + Math.cos(angle) * length, y * canvasDivisor + Math.sin(angle) * length);
+            ctx.stroke();
+        }
+    }
+
+    counter += 0.1;
+
+    counter = counter%1000;
+}
+
+function calculateConstants() {
+    dims[0] = Math.ceil(mainCanvas.width / canvasDivisor);
+    dims[1] = Math.ceil(mainCanvas.height / canvasDivisor);
+    angleNoise = new perlinNoise([dims[0], dims[1], 1000], 100, 3, 1/2);
+    colorNoise = new perlinNoise([dims[0], dims[1], 1000], 100, 3, 1/2);
+    intensityNoise = new perlinNoise([dims[0], dims[1], 1000], 50, 2, 1/2);
+}
+
+function adjustCanvasSize() {
+    mainCanvas.width = window.innerWidth;
+    mainCanvas.height = window.innerHeight;
+}
