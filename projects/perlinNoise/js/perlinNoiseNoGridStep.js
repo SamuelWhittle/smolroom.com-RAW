@@ -1,6 +1,6 @@
 //console.log("perlinNoise.js");
 class perlinNoise {
-    constructor(dims, gridStep, numOctaves, octaveScale, interp) {
+    constructor(dims, interp) {
         //console.group("constructor");
         // interp function
         this.interp = interp ?? ((start, end, position) => {
@@ -10,60 +10,10 @@ class perlinNoise {
             return start*(1-position)+end*position;
         });
 
-        // variables that are necessary for perlin Noise and Octaves
-        this.octaveScale = octaveScale ?? 1/2;
-        this.numOctaves = numOctaves ?? 3;
-        this.startingGridStep = gridStep ?? 30;
-
         // array of dimensions requested of perlin noise in pixels
         this.noiseDimensions = dims ?? [100, 100, 100]; 
         
-        // //console.log(
-        //     "Arguments Passed to new perlinNoise()" + 
-        //     "\nnoiseDimensions = " + this.noiseDimensions +
-        //     "\nstartingGridStep = " + this.startingGridStep + 
-        //     "\nnumOctaves = " + this.numOctaves + 
-        //     "\noctaveScale = " + this.octaveScale
-        // );
-
-        //array of gris steps calcualted from the starting grid step, octave scale, and number of octaves
-        this.gridSteps = new Array(this.numOctaves).fill().map((_, index) => {
-            //octave multiplier
-            var octaveMultiplier = Math.pow(this.octaveScale, index);
-
-            //Get the grid step for the current octave
-            var currentGridStep = Math.floor(this.startingGridStep*octaveMultiplier);
-
-            return currentGridStep;
-        });
-        //console.log("grid steps array:", this.gridSteps);
-
-        // array of grid dimensions, one set of dimensions for each octave's grid
-        this.gridSizes = new Array(this.numOctaves);
-        //console.log(this.gridSizes);
-
-        //Array containing all the grids of vectors
-        this.grids = new Array(this.numOctaves).fill().map((_, index) => {
-
-            //Get the current octave grid dimensions
-            var currentGridDimensions = this.getGridDimensions(this.noiseDimensions, this.gridSteps[index]);
-            this.gridSizes[index] = currentGridDimensions;
-            //console.log(currentGridDimensions);
-
-            //Create grid of vectors based on the current octave grid dimensions and a number of dimensions to make the vectors
-            var grid = this.createFullFlatGrid(currentGridDimensions);
-
-            return grid;
-        });
-        //console.log("grids:", this.grids);
-
-        // matrix of Length constants used in conjunction with an x,y,z,...,n position 
-        //     to calculate the associated position in a 1 dimensional array
-        this.lengthConstants = new Array(this.numOctaves).fill().map((_, index) => {
-            return this.getLengthConstants(this.gridSizes[index]);
-        });
-        //console.log("Length Constants =", this.lengthConstants);
-
+        this.lengthConstant = this.getLengthConstants(this.noiseDimensions);
 
         //array of unit corners based on the number of dimensions in play used to locate local corners
         this.unitCorners = new Array(Math.pow(2, this.noiseDimensions.length)).fill().map((_, index) => {

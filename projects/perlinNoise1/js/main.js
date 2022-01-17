@@ -77,7 +77,7 @@ function drawLines() {
         }
     }
 
-    counter += 0.08;
+    counter += 0.16;
 
     counter = counter%1001;
 }
