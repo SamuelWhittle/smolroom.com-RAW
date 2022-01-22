@@ -24,12 +24,6 @@ function adjustCanvasSize() {
     c.height = canvasContainer.offsetHeight;
 }
 
-// sets --vh in the css doc to fit the actual available height of the window
-/*function adjustDocumentSize() {
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-}*/
-
 // draw the current point in time on the canvas
 function draw() {
     // Make sure the canvas is the right size in pixels to match the parent div in the html
