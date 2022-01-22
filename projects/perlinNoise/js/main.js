@@ -1,6 +1,6 @@
 //-----------Functions-----------
 var noise;
-
+var seed = Math.floor(Math.random() * 9999999999999999);
 var scale = 25;
 
 function smoothInterp(a, b, c){
@@ -49,7 +49,7 @@ function main() {
     adjustCanvasSize();
     
     // perlinNoise([dim1, dim2, dim3, ..., dimN(in pixels)], gridStep, numOctaves, octaveScale])
-    noise = new perlinNoise([c.width, c.height, 1000], 100, 3, 1/3);
+    noise = new perlinNoise([c.width, c.height, 1000], 100, 3, 1/3, seed);
     
     draw();
 }
@@ -79,9 +79,8 @@ timelineInput.addEventListener('input', draw);
 
 // Age change
 redrawInput.addEventListener('click', () => {
-    scale = Number(resolution.value);
-    noise = new perlinNoise([c.width, c.height, 1000], 100, 3, 1/3);
-    draw();
+    seed = Math.floor(Math.random() * 9999999999999999);
+    main();
 });
 
 // Change Resolution

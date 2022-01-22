@@ -1,6 +1,6 @@
 //console.log("perlinNoise.js");
 class perlinNoise {
-    constructor(dims, gridStep, numOctaves, octaveScale, interp) {
+    constructor(dims, gridStep, numOctaves, octaveScale, seed, interp) {
         //console.group("constructor");
         // interp function
         this.interp = interp ?? ((start, end, position) => {
@@ -9,6 +9,8 @@ class perlinNoise {
             // return lerp given the start end and position
             return start*(1-position)+end*position;
         });
+
+        this.seed = seed ?? 0;
 
         // variables that are necessary for perlin Noise and Octaves
         this.octaveScale = octaveScale ?? 1/2;
@@ -39,23 +41,16 @@ class perlinNoise {
         //console.log("grid steps array:", this.gridSteps);
 
         // array of grid dimensions, one set of dimensions for each octave's grid
-        this.gridSizes = new Array(this.numOctaves);
+        this.gridSizes = new Array(this.numOctaves).fill(0);
         //console.log(this.gridSizes);
 
         //Array containing all the grids of vectors
-        this.grids = new Array(this.numOctaves).fill().map((_, index) => {
-
+        //this.grids = new Array(this.numOctaves).fill().map((_, index) => {
+        this.gridSizes.forEach((size, index) => {
             //Get the current octave grid dimensions
             var currentGridDimensions = this.getGridDimensions(this.noiseDimensions, this.gridSteps[index]);
             this.gridSizes[index] = currentGridDimensions;
-            //console.log(currentGridDimensions);
-
-            //Create grid of vectors based on the current octave grid dimensions and a number of dimensions to make the vectors
-            var grid = this.createFullFlatGrid(currentGridDimensions);
-
-            return grid;
         });
-        //console.log("grids:", this.grids);
 
         // matrix of Length constants used in conjunction with an x,y,z,...,n position 
         //     to calculate the associated position in a 1 dimensional array
@@ -131,10 +126,10 @@ class perlinNoise {
             var localCornerVectors = localCorners
                 .map((corner) => this.dotProduct(corner, this.lengthConstants[octave]))
                     .map((val) => {
-                        //console.log(val);
-                        //console.log(this.grids[octave][val]);
-                        // implement hashing function instead of array to store vectors
-                        return this.grids[octave][val];
+                        //return this.grids[octave][val];
+                        return [this.hashString(`${octave}${val}0`, this.seed)/9999999999999999*2 - 1
+                                , this.hashString(`${octave}${val}1`, this.seed)/9999999999999999*2 - 1
+                                , this.hashString(`${octave}${val}2`, this.seed)/9999999999999999*2 - 1];
                     });
             //console.log("local corner vectors:", localCornerVectors);
             
