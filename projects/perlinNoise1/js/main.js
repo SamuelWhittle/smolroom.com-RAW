@@ -7,7 +7,7 @@ let ctx = mainCanvas.getContext('2d');
 // Global Variables
 let counter = 0;
 
-let canvasDivisor = 50;
+let canvasDivisor = 40;
 
 let dims = new Array(2);
 
@@ -25,6 +25,7 @@ window.addEventListener('load', () => {
 
 window.addEventListener('resize', () => {
     adjustCanvasSize();
+    calculateConstants();
     //startInterval();
 });
 
@@ -77,7 +78,7 @@ function drawLines() {
         }
     }
 
-    counter += 0.16;
+    counter += 0.10;
 
     counter = counter%1001;
 }
@@ -85,9 +86,9 @@ function drawLines() {
 function calculateConstants() {
     dims[0] = Math.ceil(mainCanvas.width / canvasDivisor) + 1;
     dims[1] = Math.ceil(mainCanvas.height / canvasDivisor) + 1;
-    angleNoise = new perlinNoise([dims[0], dims[1], 1000], 10, 2, 1/2);
-    colorNoise = new perlinNoise([dims[0], dims[1], 1000], 20, 2, 1/2);
-    intensityNoise = new perlinNoise([dims[0], dims[1], 1000], 10, 2, 1/2);
+    angleNoise = new perlinNoise([dims[0], dims[1], 1000], 10, 2, 1/2, 0);
+    colorNoise = new perlinNoise([dims[0], dims[1], 1000], 20, 2, 1/2, 1);
+    intensityNoise = new perlinNoise([dims[0], dims[1], 1000], 10, 2, 1/2, 2);
 }
 
 function adjustCanvasSize() {
