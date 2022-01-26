@@ -2,7 +2,7 @@
 }
 
 body {
-    padding: 1rem;
+    /*padding: 1rem;*/
 
     background: none;
     color: #FFFFFF;
@@ -29,7 +29,7 @@ body {
 }
 
 .primary-header {
-    margin-bottom: 1rem;
+    /*margin-bottom: 1rem;*/
     align-items: center;
 }
 
@@ -107,6 +107,7 @@ body {
 
 .main-content {
     flex-wrap: wrap;
+    padding: 1rem;
 }
 
 .main-content-item {
